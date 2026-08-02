@@ -356,7 +356,7 @@ function GalleryPage() {
   const allKeys = Array.from(new Set([...groups.keys(), ...orphanGroups.keys()])).sort((a, b) => (a < b ? 1 : -1));
 
   return (
-    <AppLayout title="Photo Gallery" subtitle="Chapter moments · Pinterest style.">
+    <AppLayout title="Photo Gallery" subtitle="Chapter moments.">
       <div className="px-4 mt-4 flex items-center gap-2">
         <Button onClick={onPick} disabled={uploading} className="bg-[var(--brand)] hover:bg-[var(--brand-deep)]">
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -374,14 +374,14 @@ function GalleryPage() {
           <p className="text-sm">No photos yet. Be the first to share.</p>
         </div>
       ) : (
-        <div className="mt-4 space-y-6 pb-10">
+        <div className="mt-4 space-y-5 pb-10">
           {allKeys.map((k) => {
             const monthAlbums = groups.get(k) ?? [];
             const monthOrphans = orphanGroups.get(k) ?? [];
             return (
-              <section key={k} className="px-3">
-                <h3 className="px-1 mb-3 text-lg font-extrabold text-[var(--brand)]">{monthLabel(k)}</h3>
-                <div className="columns-2 sm:columns-3 md:columns-4 gap-3 [column-fill:_balance]">
+              <section key={k}>
+                <h3 className="px-4 mb-2 text-lg font-extrabold text-[var(--brand)]">{monthLabel(k)}</h3>
+                <div className="columns-2 sm:columns-3 md:columns-4 gap-px [column-fill:_balance] bg-border">
                   {monthAlbums.map((album) => (
                     <AlbumPin
                       key={album.id}
@@ -393,7 +393,7 @@ function GalleryPage() {
                     />
                   ))}
                   {monthOrphans.map((p) => (
-                    <div key={p.id} className="mb-3 break-inside-avoid rounded-2xl overflow-hidden bg-white shadow-md ring-1 ring-black/5">
+                    <div key={p.id} className="mb-px break-inside-avoid overflow-hidden bg-card">
                       <button onClick={() => openSinglePhoto(p, setOpenAlbum, setOpenIndex, setComments)} className="block w-full">
                         <img src={p.public_url} loading="lazy" alt={p.caption ?? ""}
                              className="w-full h-auto object-cover" />
@@ -405,6 +405,7 @@ function GalleryPage() {
             );
           })}
         </div>
+
       )}
 
       {/* Upload dialog */}
@@ -512,11 +513,13 @@ function AlbumPin({
 
   const multi = album.photos.length > 1;
 
+  const [pulse, setPulse] = useState(false);
+
   return (
-    <div className="mb-3 break-inside-avoid rounded-2xl overflow-hidden bg-white shadow-md ring-1 ring-black/5 hover:ring-[var(--brand-accent)] hover:shadow-xl transition-all">
-      <div className="px-3 pt-2.5 pb-1.5">
-        <p className="text-sm font-bold text-[var(--brand)] leading-tight line-clamp-2">{album.title}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
+    <div className="mb-px break-inside-avoid overflow-hidden bg-card">
+      <div className="px-1.5 pt-1 pb-0.5">
+        <p className="text-[13px] font-bold text-[var(--brand)] leading-tight line-clamp-1">{album.title}</p>
+        <p className="text-[10px] text-muted-foreground">
           {album.uploader_name ?? "Member"} · {album.photos.length} photo{album.photos.length > 1 ? "s" : ""}
         </p>
       </div>
@@ -535,26 +538,29 @@ function AlbumPin({
         </div>
         {multi && (
           <>
-            <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+            <div className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
               {current + 1}/{album.photos.length}
             </div>
             <button
               onClick={() => embla?.scrollPrev()}
-              className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+              className="absolute left-0.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
               aria-label="Previous"
             ><ChevronLeft className="h-4 w-4" /></button>
             <button
               onClick={() => embla?.scrollNext()}
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
               aria-label="Next"
             ><ChevronRight className="h-4 w-4" /></button>
           </>
         )}
       </div>
-      <div className="flex items-center justify-between px-3 py-2 gap-2">
-        <div className="flex items-center gap-3">
-          <button onClick={onReact} className="flex items-center gap-1 text-xs font-semibold">
-            <Heart className={`h-4 w-4 ${album.reacted ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+      <div className="flex items-center justify-between px-1.5 py-1 gap-2 border-t border-border">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => { setPulse(true); setTimeout(() => setPulse(false), 350); onReact(); }}
+            className="flex items-center gap-1 text-xs font-semibold"
+          >
+            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
             <span>{album.reactionCount}</span>
           </button>
           <button onClick={() => onOpen(0)} className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
@@ -569,6 +575,7 @@ function AlbumPin({
       </div>
     </div>
   );
+
 }
 
 function Lightbox({
@@ -606,7 +613,8 @@ function Lightbox({
   }, [embla, setIndex]);
 
   const current = album.photos[index];
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
+  const [pulse, setPulse] = useState(false);
   const multi = album.photos.length > 1;
 
   return (
@@ -617,10 +625,14 @@ function Lightbox({
           <p className="text-[11px] opacity-70">{index + 1} / {album.photos.length}</p>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={onReact} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10">
-            <Heart className={`h-4 w-4 ${album.reacted ? "fill-red-500 text-red-500" : ""}`} />
+          <button
+            onClick={() => { setPulse(true); setTimeout(() => setPulse(false), 350); onReact(); }}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10"
+          >
+            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-red-500 text-red-500" : ""}`} />
             <span className="text-xs font-semibold">{album.reactionCount}</span>
           </button>
+
           <button onClick={() => setShowComments((s) => !s)} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10">
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-semibold">{comments.length}</span>
