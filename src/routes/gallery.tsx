@@ -374,14 +374,14 @@ function GalleryPage() {
           <p className="text-sm">No photos yet. Be the first to share.</p>
         </div>
       ) : (
-        <div className="mt-4 space-y-6 pb-10">
+        <div className="mt-4 space-y-5 pb-10">
           {allKeys.map((k) => {
             const monthAlbums = groups.get(k) ?? [];
             const monthOrphans = orphanGroups.get(k) ?? [];
             return (
-              <section key={k} className="px-3">
-                <h3 className="px-1 mb-3 text-lg font-extrabold text-[var(--brand)]">{monthLabel(k)}</h3>
-                <div className="columns-2 sm:columns-3 md:columns-4 gap-3 [column-fill:_balance]">
+              <section key={k}>
+                <h3 className="px-4 mb-2 text-lg font-extrabold text-[var(--brand)]">{monthLabel(k)}</h3>
+                <div className="columns-2 sm:columns-3 md:columns-4 gap-px [column-fill:_balance] bg-border">
                   {monthAlbums.map((album) => (
                     <AlbumPin
                       key={album.id}
@@ -393,7 +393,7 @@ function GalleryPage() {
                     />
                   ))}
                   {monthOrphans.map((p) => (
-                    <div key={p.id} className="mb-3 break-inside-avoid rounded-2xl overflow-hidden bg-white shadow-md ring-1 ring-black/5">
+                    <div key={p.id} className="mb-px break-inside-avoid overflow-hidden bg-card">
                       <button onClick={() => openSinglePhoto(p, setOpenAlbum, setOpenIndex, setComments)} className="block w-full">
                         <img src={p.public_url} loading="lazy" alt={p.caption ?? ""}
                              className="w-full h-auto object-cover" />
@@ -405,6 +405,7 @@ function GalleryPage() {
             );
           })}
         </div>
+
       )}
 
       {/* Upload dialog */}
