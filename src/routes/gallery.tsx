@@ -356,7 +356,7 @@ function GalleryPage() {
   const allKeys = Array.from(new Set([...groups.keys(), ...orphanGroups.keys()])).sort((a, b) => (a < b ? 1 : -1));
 
   return (
-    <AppLayout title="Photo Gallery" subtitle="Chapter moments · Pinterest style.">
+    <AppLayout title="Photo Gallery" subtitle="Chapter moments.">
       <div className="px-4 mt-4 flex items-center gap-2">
         <Button onClick={onPick} disabled={uploading} className="bg-[var(--brand)] hover:bg-[var(--brand-deep)]">
           {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
