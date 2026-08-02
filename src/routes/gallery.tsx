@@ -513,11 +513,13 @@ function AlbumPin({
 
   const multi = album.photos.length > 1;
 
+  const [pulse, setPulse] = useState(false);
+
   return (
-    <div className="mb-3 break-inside-avoid rounded-2xl overflow-hidden bg-white shadow-md ring-1 ring-black/5 hover:ring-[var(--brand-accent)] hover:shadow-xl transition-all">
-      <div className="px-3 pt-2.5 pb-1.5">
-        <p className="text-sm font-bold text-[var(--brand)] leading-tight line-clamp-2">{album.title}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
+    <div className="mb-px break-inside-avoid overflow-hidden bg-card">
+      <div className="px-1.5 pt-1 pb-0.5">
+        <p className="text-[13px] font-bold text-[var(--brand)] leading-tight line-clamp-1">{album.title}</p>
+        <p className="text-[10px] text-muted-foreground">
           {album.uploader_name ?? "Member"} · {album.photos.length} photo{album.photos.length > 1 ? "s" : ""}
         </p>
       </div>
@@ -536,26 +538,29 @@ function AlbumPin({
         </div>
         {multi && (
           <>
-            <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+            <div className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
               {current + 1}/{album.photos.length}
             </div>
             <button
               onClick={() => embla?.scrollPrev()}
-              className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+              className="absolute left-0.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
               aria-label="Previous"
             ><ChevronLeft className="h-4 w-4" /></button>
             <button
               onClick={() => embla?.scrollNext()}
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1"
               aria-label="Next"
             ><ChevronRight className="h-4 w-4" /></button>
           </>
         )}
       </div>
-      <div className="flex items-center justify-between px-3 py-2 gap-2">
-        <div className="flex items-center gap-3">
-          <button onClick={onReact} className="flex items-center gap-1 text-xs font-semibold">
-            <Heart className={`h-4 w-4 ${album.reacted ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+      <div className="flex items-center justify-between px-1.5 py-1 gap-2 border-t border-border">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => { setPulse(true); setTimeout(() => setPulse(false), 350); onReact(); }}
+            className="flex items-center gap-1 text-xs font-semibold"
+          >
+            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
             <span>{album.reactionCount}</span>
           </button>
           <button onClick={() => onOpen(0)} className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
@@ -570,6 +575,7 @@ function AlbumPin({
       </div>
     </div>
   );
+
 }
 
 function Lightbox({
