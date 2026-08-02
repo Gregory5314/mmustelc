@@ -613,7 +613,8 @@ function Lightbox({
   }, [embla, setIndex]);
 
   const current = album.photos[index];
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
+  const [pulse, setPulse] = useState(false);
   const multi = album.photos.length > 1;
 
   return (
@@ -624,10 +625,14 @@ function Lightbox({
           <p className="text-[11px] opacity-70">{index + 1} / {album.photos.length}</p>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={onReact} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10">
-            <Heart className={`h-4 w-4 ${album.reacted ? "fill-red-500 text-red-500" : ""}`} />
+          <button
+            onClick={() => { setPulse(true); setTimeout(() => setPulse(false), 350); onReact(); }}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10"
+          >
+            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-red-500 text-red-500" : ""}`} />
             <span className="text-xs font-semibold">{album.reactionCount}</span>
           </button>
+
           <button onClick={() => setShowComments((s) => !s)} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10">
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-semibold">{comments.length}</span>
