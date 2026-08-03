@@ -136,7 +136,7 @@ function Members() {
           </p>
         )}
         {!loading && members.length > 0 && filtered.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">No members match "{q}".</p>
+          <p className="text-sm text-muted-foreground text-center py-6">No members match "{term}".</p>
         )}
         {filtered.map((m) => {
           const inner = (
@@ -154,10 +154,18 @@ function Members() {
                 </div>
               )}
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-bold text-foreground truncate">{m.full_name || "—"}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {[m.course, m.year ? `Year ${m.year}` : null].filter(Boolean).join(" • ") || "Member"}
+                <p className="text-sm font-bold text-foreground truncate">
+                  <Highlight text={m.full_name || "—"} term={term} />
                 </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  <Highlight
+                    text={[m.course, m.year ? `Year ${m.year}` : null].filter(Boolean).join(" • ") || "Member"}
+                    term={term}
+                  />
+                </p>
+              </div>
+            </>
+
               </div>
             </>
           );
