@@ -166,8 +166,6 @@ function Members() {
               </div>
             </>
 
-              </div>
-            </>
           );
           return isOfficer ? (
             <button
