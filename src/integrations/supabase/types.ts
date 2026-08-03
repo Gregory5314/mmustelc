@@ -756,6 +756,21 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_member_admin_view: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          course: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          mentoring_school: string
+          phone: string
+          scholar_code: string
+          year: number
+        }[]
+      }
       get_my_permissions: { Args: never; Returns: string[] }
       get_my_profile: {
         Args: never
@@ -790,6 +805,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      list_members_directory: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          course: string
+          full_name: string
+          id: string
+          year: number
+        }[]
       }
       notify_all_members: {
         Args: { _body: string; _link: string; _title: string; _type: string }
