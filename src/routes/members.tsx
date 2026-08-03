@@ -51,6 +51,7 @@ function Members() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [term, setTerm] = useState("");
   const [selected, setSelected] = useState<Details | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
@@ -62,8 +63,14 @@ function Members() {
     });
   }, []);
 
+  // Debounce the search input so typing stays smooth on long lists
+  useEffect(() => {
+    const id = setTimeout(() => setTerm(q.trim()), 180);
+    return () => clearTimeout(id);
+  }, [q]);
+
   const filtered = useMemo(() => {
-    const t = q.trim().toLowerCase();
+    const t = term.toLowerCase();
     if (!t) return members;
     return members.filter((m) =>
       [m.full_name, m.course ?? "", m.year ? `year ${m.year}` : ""]
@@ -71,7 +78,8 @@ function Members() {
         .toLowerCase()
         .includes(t),
     );
-  }, [members, q]);
+  }, [members, term]);
+
 
   const openMember = async (m: Member) => {
     if (!isOfficer) return;
@@ -128,7 +136,7 @@ function Members() {
           </p>
         )}
         {!loading && members.length > 0 && filtered.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">No members match "{q}".</p>
+          <p className="text-sm text-muted-foreground text-center py-6">No members match "{term}".</p>
         )}
         {filtered.map((m) => {
           const inner = (
@@ -146,12 +154,18 @@ function Members() {
                 </div>
               )}
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-bold text-foreground truncate">{m.full_name || "—"}</p>
+                <p className="text-sm font-bold text-foreground truncate">
+                  <Highlight text={m.full_name || "—"} term={term} />
+                </p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {[m.course, m.year ? `Year ${m.year}` : null].filter(Boolean).join(" • ") || "Member"}
+                  <Highlight
+                    text={[m.course, m.year ? `Year ${m.year}` : null].filter(Boolean).join(" • ") || "Member"}
+                    term={term}
+                  />
                 </p>
               </div>
             </>
+
           );
           return isOfficer ? (
             <button
@@ -218,6 +232,23 @@ function Members() {
     </AppLayout>
   );
 }
+
+function Highlight({ text, term }: { text: string; term: string }) {
+  const t = term.trim();
+  if (!t) return <>{text}</>;
+  const idx = text.toLowerCase().indexOf(t.toLowerCase());
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-[var(--brand)]/25 text-foreground rounded px-0.5">
+        {text.slice(idx, idx + t.length)}
+      </mark>
+      {text.slice(idx + t.length)}
+    </>
+  );
+}
+
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
