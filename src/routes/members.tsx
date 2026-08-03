@@ -233,6 +233,23 @@ function Members() {
   );
 }
 
+function Highlight({ text, term }: { text: string; term: string }) {
+  const t = term.trim();
+  if (!t) return <>{text}</>;
+  const idx = text.toLowerCase().indexOf(t.toLowerCase());
+  if (idx === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-[var(--brand)]/25 text-foreground rounded px-0.5">
+        {text.slice(idx, idx + t.length)}
+      </mark>
+      {text.slice(idx + t.length)}
+    </>
+  );
+}
+
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-0">
