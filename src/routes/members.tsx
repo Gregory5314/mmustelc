@@ -51,6 +51,7 @@ function Members() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [term, setTerm] = useState("");
   const [selected, setSelected] = useState<Details | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
@@ -62,8 +63,14 @@ function Members() {
     });
   }, []);
 
+  // Debounce the search input so typing stays smooth on long lists
+  useEffect(() => {
+    const id = setTimeout(() => setTerm(q.trim()), 180);
+    return () => clearTimeout(id);
+  }, [q]);
+
   const filtered = useMemo(() => {
-    const t = q.trim().toLowerCase();
+    const t = term.toLowerCase();
     if (!t) return members;
     return members.filter((m) =>
       [m.full_name, m.course ?? "", m.year ? `year ${m.year}` : ""]
@@ -71,7 +78,8 @@ function Members() {
         .toLowerCase()
         .includes(t),
     );
-  }, [members, q]);
+  }, [members, term]);
+
 
   const openMember = async (m: Member) => {
     if (!isOfficer) return;
