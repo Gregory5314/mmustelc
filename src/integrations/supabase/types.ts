@@ -806,6 +806,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_chapter_officials: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          course: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          role: string
+          year: number
+        }[]
+      }
       list_members_directory: {
         Args: never
         Returns: {
