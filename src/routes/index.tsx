@@ -45,16 +45,17 @@ type R = {
   description: string | null;
   photo_url: string | null;
 };
+type Ment = { id: string; title: string; description: string | null; activity_date: string };
 
 function Dashboard() {
   const { user } = useAuth();
   const [firstName, setFirstName] = useState<string>("");
   const [upcoming, setUpcoming] = useState<Ev[]>([]);
+  const [mentorship, setMentorship] = useState<Ment[]>([]);
   const [attendance, setAttendance] = useState<AttendanceItem[]>([]);
   const [totalAttended, setTotalAttended] = useState(0);
   const [quote, setQuote] = useState<Q | null>(null);
   const [recognition, setRecognition] = useState<R | null>(null);
-
 
   useEffect(() => {
     if (user) {
@@ -68,59 +69,93 @@ function Dashboard() {
           setFirstName(name.trim().split(/\s+/)[0]);
         });
     }
-
-    const nowIso = new Date().toISOString();
-
-    supabase
-      .from("events")
-      .select("id,title,starts_at,location,description,status,photo_url")
-      .gte("starts_at", nowIso)
-      .order("starts_at", { ascending: true })
-      .limit(5)
-      .then(({ data }) => setUpcoming((data ?? []) as Ev[]));
-
-    supabase
-      .from("events_attended")
-      .select("profile_id, profiles(id, full_name, avatar_url)")
-      .then(({ data }) => {
-        const rows = (data ?? []) as unknown as AttendedRow[];
-        setTotalAttended(rows.length);
-        const map = new Map<string, AttendanceItem>();
-        rows.forEach((r) => {
-          const key = r.profile_id;
-          const existing = map.get(key);
-          if (existing) existing.count += 1;
-          else
-            map.set(key, {
-              profile_id: key,
-              full_name: r.profiles?.full_name ?? "Unknown member",
-              avatar_url: r.profiles?.avatar_url ?? null,
-              count: 1,
-            });
-        });
-        setAttendance(
-          Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 5),
-        );
-      });
-
-    supabase
-      .from("quotes")
-      .select("scholar_name,quote_text,photo_url")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => setQuote((data as Q | null) ?? null));
-
-    supabase
-      .from("scholar_recognition")
-      .select("scholar_name,recognition_type,description,photo_url")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => setRecognition((data as R | null) ?? null));
   }, [user]);
+
+  useEffect(() => {
+    const load = () => {
+      const nowIso = new Date().toISOString();
+      const todayIso = new Date().toISOString().slice(0, 10);
+
+      // Pinned upcoming events: not yet started and not completed/cancelled
+      supabase
+        .from("events")
+        .select("id,title,starts_at,location,description,status,photo_url")
+        .gte("starts_at", nowIso)
+        .not("status", "in", "(completed,cancelled)")
+        .order("starts_at", { ascending: true })
+        .limit(5)
+        .then(({ data }) => setUpcoming((data ?? []) as Ev[]));
+
+      // Pinned mentorship updates: until their date passes
+      supabase
+        .from("mentorship_activities")
+        .select("id,title,description,activity_date")
+        .gte("activity_date", todayIso)
+        .order("activity_date", { ascending: true })
+        .then(({ data }) => setMentorship((data ?? []) as Ment[]));
+
+      supabase
+        .from("events_attended")
+        .select("profile_id, profiles(id, full_name, avatar_url)")
+        .then(({ data }) => {
+          const rows = (data ?? []) as unknown as AttendedRow[];
+          setTotalAttended(rows.length);
+          const map = new Map<string, AttendanceItem>();
+          rows.forEach((r) => {
+            const key = r.profile_id;
+            const existing = map.get(key);
+            if (existing) existing.count += 1;
+            else
+              map.set(key, {
+                profile_id: key,
+                full_name: r.profiles?.full_name ?? "Unknown member",
+                avatar_url: r.profiles?.avatar_url ?? null,
+                count: 1,
+              });
+          });
+          setAttendance(
+            Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 5),
+          );
+        });
+
+      supabase
+        .from("quotes")
+        .select("scholar_name,quote_text,photo_url")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data }) => setQuote((data as Q | null) ?? null));
+
+      supabase
+        .from("scholar_recognition")
+        .select("scholar_name,recognition_type,description,photo_url")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data }) => setRecognition((data as R | null) ?? null));
+    };
+
+    load();
+
+    const channel = supabase
+      .channel("dashboard-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "events" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "mentorship_activities" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "quotes" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "scholar_recognition" }, load)
+      .subscribe();
+
+    // Re-evaluate expiry (unpin past items) periodically
+    const timer = window.setInterval(load, 60_000);
+
+    return () => {
+      window.clearInterval(timer);
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
 
   return (
     <AppLayout title="Dashboard" subtitle={firstName ? `Hello, ${firstName}!` : "Welcome back to your chapter."}>
