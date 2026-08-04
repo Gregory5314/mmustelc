@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/mentorship")({
 
 type Act = { id: string; title: string; description: string | null; activity_date: string };
 type Assign = { id: string; profile_id: string; school: string; assigned_until: string | null };
-type Prof = { id: string; full_name: string; scholar_code: string };
+type Prof = { id: string; full_name: string; course: string | null; year: number | null };
 
 function Page() {
   const [acts, setActs] = useState<Act[]>([]);
@@ -26,7 +26,7 @@ function Page() {
     const [{ data: a }, { data: as }, { data: p }] = await Promise.all([
       supabase.from("mentorship_activities").select("*").order("activity_date", { ascending: false }),
       supabase.from("mentor_assignments").select("*").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, full_name, scholar_code").order("full_name"),
+      supabase.from("profiles").select("id, full_name, course, year").order("full_name"),
     ]);
     setActs((a ?? []) as Act[]); setAssigns((as ?? []) as Assign[]); setProfs((p ?? []) as Prof[]);
   };
@@ -84,7 +84,7 @@ function Page() {
           <h3 className="text-base font-extrabold text-[var(--brand)]">Assign Member to School</h3>
           <select required value={asForm.profile_id} onChange={(e) => setAsForm({ ...asForm, profile_id: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
             <option value="">Select member…</option>
-            {profs.map((p) => <option key={p.id} value={p.id}>{p.full_name} ({p.scholar_code})</option>)}
+            {profs.map((p) => <option key={p.id} value={p.id}>{p.full_name}{p.course ? ` — ${p.course}` : ""}{p.year ? ` (Y${p.year})` : ""}</option>)}
           </select>
           <input required placeholder="School *" value={asForm.school} onChange={(e) => setAsForm({ ...asForm, school: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
           <input type="date" placeholder="Assigned until" value={asForm.assigned_until} onChange={(e) => setAsForm({ ...asForm, assigned_until: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
