@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/subscriptions")({
   component: () => <PermissionGate perm="subscriptions.update" title="Subscriptions"><Page /></PermissionGate>,
 });
 
-type Row = { id: string; full_name: string; scholar_code: string; status: string };
+type Row = { id: string; full_name: string; course: string | null; year: number | null; status: string };
 
 function Page() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -18,7 +18,7 @@ function Page() {
   const [working, setWorking] = useState(false);
 
   const refresh = async () => {
-    const { data: profs } = await supabase.from("profiles").select("id, full_name, scholar_code").order("full_name");
+    const { data: profs } = await supabase.from("profiles").select("id, full_name, course, year").order("full_name");
     const { data: subs } = await supabase.from("subscriptions").select("profile_id, status");
     const statusMap = new Map((subs ?? []).map((s) => [s.profile_id, s.status]));
     setRows((profs ?? []).map((p) => ({ ...p, status: statusMap.get(p.id) ?? "inactive" })));
@@ -56,7 +56,7 @@ function Page() {
           <div key={r.id} className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold truncate">{r.full_name || "—"}</p>
-              <p className="text-xs text-muted-foreground">{r.scholar_code}</p>
+              <p className="text-xs text-muted-foreground">{[r.course, r.year ? `Year ${r.year}` : null].filter(Boolean).join(" • ") || "—"}</p>
             </div>
             <button
               onClick={() => requestToggle(r)}
@@ -75,7 +75,7 @@ function Page() {
             <p className="text-sm mt-3 text-foreground">
               Has <span className="font-bold">{confirmRow.full_name}</span> paid the subscription fee?
             </p>
-            <p className="text-xs mt-1 text-muted-foreground">{confirmRow.scholar_code}</p>
+            <p className="text-xs mt-1 text-muted-foreground">{[confirmRow.course, confirmRow.year ? `Year ${confirmRow.year}` : null].filter(Boolean).join(" • ") || "—"}</p>
             <div className="flex gap-2 mt-5">
               <button
                 onClick={() => setConfirmRow(null)}
