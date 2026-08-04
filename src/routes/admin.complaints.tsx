@@ -22,7 +22,7 @@ function Page() {
     const rows = (data ?? []) as C[]; setItems(rows);
     const ids = Array.from(new Set(rows.map((r) => r.submitter_id)));
     if (ids.length) {
-      const { data: ps } = await supabase.from("profiles").select("id, full_name, scholar_code").in("id", ids);
+      const { data: ps } = await supabase.from("profiles").select("id, full_name, course").in("id", ids);
       const map: Record<string, Prof> = {};
       (ps ?? []).forEach((p) => { map[p.id] = p as Prof; });
       setProfs(map);
