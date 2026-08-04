@@ -60,10 +60,9 @@ function AdminMembers() {
 
   const refresh = () => {
     supabase
-      .from("profiles")
-      .select("id, full_name, scholar_code, course")
-      .order("created_at", { ascending: false })
+      .rpc("list_members_manage")
       .then(({ data }) => {
+
         const list = (data ?? []) as Row[];
         setRows(list);
         supabase.from("user_roles").select("user_id, role").then(({ data: rs }) => {

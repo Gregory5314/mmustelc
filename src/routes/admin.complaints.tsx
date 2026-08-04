@@ -12,7 +12,7 @@ export const Route = createFileRoute("/admin/complaints")({
 });
 
 type C = { id: string; subject: string; category: string; details: string; status: string; created_at: string; submitter_id: string };
-type Prof = { id: string; full_name: string; scholar_code: string };
+type Prof = { id: string; full_name: string; course: string | null };
 
 function Page() {
   const [items, setItems] = useState<C[]>([]);
@@ -22,7 +22,7 @@ function Page() {
     const rows = (data ?? []) as C[]; setItems(rows);
     const ids = Array.from(new Set(rows.map((r) => r.submitter_id)));
     if (ids.length) {
-      const { data: ps } = await supabase.from("profiles").select("id, full_name, scholar_code").in("id", ids);
+      const { data: ps } = await supabase.from("profiles").select("id, full_name, course").in("id", ids);
       const map: Record<string, Prof> = {};
       (ps ?? []).forEach((p) => { map[p.id] = p as Prof; });
       setProfs(map);
@@ -48,7 +48,7 @@ function Page() {
                 <AlertTriangle className={`h-5 w-5 mt-0.5 ${resolved ? "text-muted-foreground" : "text-destructive"}`} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold">{c.subject}</p>
-                  <p className="text-xs text-muted-foreground">{who ? `${who.full_name} • ${who.scholar_code}` : "Member"} · {c.category}</p>
+                  <p className="text-xs text-muted-foreground">{who ? `${who.full_name}${who.course ? ` • ${who.course}` : ""}` : "Member"} · {c.category}</p>
                   <p className="text-sm mt-2 whitespace-pre-wrap">{c.details}</p>
                   {!resolved && (
                     <button onClick={() => resolve(c.id)} className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[var(--brand)]">
