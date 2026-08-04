@@ -829,6 +829,15 @@ export type Database = {
           year: number
         }[]
       }
+      list_members_manage: {
+        Args: never
+        Returns: {
+          course: string
+          full_name: string
+          id: string
+          scholar_code: string
+        }[]
+      }
       notify_all_members: {
         Args: { _body: string; _link: string; _title: string; _type: string }
         Returns: undefined
