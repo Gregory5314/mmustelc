@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppLayout } from "@/components/AppLayout";
-import { CalendarDays, MapPin, Quote, Award, CheckSquare, Trophy } from "lucide-react";
+import { CalendarDays, MapPin, Quote, Award, CheckSquare, Trophy, Heart, Pin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
