@@ -309,6 +309,43 @@ function Dashboard() {
         )}
       </Section>
 
+      {/* Mentorship Updates (pinned until their date passes) */}
+      <Section
+        icon={Heart}
+        title="Mentorship Updates"
+        action={<Link to="/activities" className="text-xs font-bold text-[var(--brand-accent)]">See all</Link>}
+      >
+        {mentorship.length === 0 ? (
+          <Empty>No active mentorship updates.</Empty>
+        ) : (
+          <div className="space-y-2">
+            {mentorship.map((m) => (
+              <Link
+                to="/activities"
+                hash={m.id}
+                key={m.id}
+                className="block bg-card border border-border rounded-xl p-3 hover:bg-accent/40 active:scale-[0.99] transition"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-[var(--brand)] truncate">{m.title}</p>
+                  <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[var(--brand-accent)]">
+                    <Pin className="h-3 w-3" /> Pinned
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {new Date(m.activity_date).toLocaleDateString()}
+                </p>
+                {m.description && (
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{m.description}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </Section>
+
+
+
       {/* Scholar of the Month */}
       <Section icon={Award} title="Scholar of the Month">
         {!recognition ? (
