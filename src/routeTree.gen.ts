@@ -18,6 +18,7 @@ import { Route as MembersRouteImport } from './routes/members'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinksRouteImport } from './routes/links'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as ConstitutionRouteImport } from './routes/constitution'
 import { Route as ComplaintRouteImport } from './routes/complaint'
@@ -79,6 +80,11 @@ const LinksRoute = LinksRouteImport.update({
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceRoute = FinanceRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gallery': typeof GalleryRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gallery': typeof GalleryRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/gallery': typeof GalleryRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/complaint'
     | '/constitution'
     | '/finance'
+    | '/forgot-password'
     | '/gallery'
     | '/links'
     | '/login'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/complaint'
     | '/constitution'
     | '/finance'
+    | '/forgot-password'
     | '/gallery'
     | '/links'
     | '/login'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/complaint'
     | '/constitution'
     | '/finance'
+    | '/forgot-password'
     | '/gallery'
     | '/links'
     | '/login'
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   ComplaintRoute: typeof ComplaintRoute
   ConstitutionRoute: typeof ConstitutionRoute
   FinanceRoute: typeof FinanceRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   GalleryRoute: typeof GalleryRoute
   LinksRoute: typeof LinksRoute
   LoginRoute: typeof LoginRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/finance': {
@@ -571,6 +591,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComplaintRoute: ComplaintRoute,
   ConstitutionRoute: ConstitutionRoute,
   FinanceRoute: FinanceRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   GalleryRoute: GalleryRoute,
   LinksRoute: LinksRoute,
   LoginRoute: LoginRoute,
