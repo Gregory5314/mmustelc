@@ -14,6 +14,8 @@ export const ROLE_LABELS: Record<string, string> = {
   alumni_manager: "Alumni Manager",
   mentorship_coordinator: "Mentorship Coordinator",
   welfare_coordinator: "Welfare Coordinator",
+  alumni: "Alumni",
+
 };
 
 export const ASSIGNABLE_ROLES = [
