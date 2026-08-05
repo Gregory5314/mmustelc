@@ -23,6 +23,7 @@ export type Database = {
           graduation_year: number | null
           id: string
           notes: string | null
+          profile_id: string | null
         }
         Insert: {
           added_by?: string | null
@@ -32,6 +33,7 @@ export type Database = {
           graduation_year?: number | null
           id?: string
           notes?: string | null
+          profile_id?: string | null
         }
         Update: {
           added_by?: string | null
@@ -41,8 +43,17 @@ export type Database = {
           graduation_year?: number | null
           id?: string
           notes?: string | null
+          profile_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "alumni_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chapter_documents: {
         Row: {
@@ -547,11 +558,15 @@ export type Database = {
           created_at: string
           email: string | null
           email_opt_in: boolean
+          first_name: string | null
           full_name: string
           id: string
+          is_alumni: boolean
           mentoring_school: string | null
+          middle_name: string | null
           phone: string | null
           scholar_code: string
+          surname: string | null
           updated_at: string
           year: number | null
         }
@@ -561,11 +576,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           email_opt_in?: boolean
+          first_name?: string | null
           full_name?: string
           id: string
+          is_alumni?: boolean
           mentoring_school?: string | null
+          middle_name?: string | null
           phone?: string | null
           scholar_code: string
+          surname?: string | null
           updated_at?: string
           year?: number | null
         }
@@ -575,11 +594,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           email_opt_in?: boolean
+          first_name?: string | null
           full_name?: string
           id?: string
+          is_alumni?: boolean
           mentoring_school?: string | null
+          middle_name?: string | null
           phone?: string | null
           scholar_code?: string
+          surname?: string | null
           updated_at?: string
           year?: number | null
         }
@@ -781,11 +804,15 @@ export type Database = {
           created_at: string
           email: string | null
           email_opt_in: boolean
+          first_name: string | null
           full_name: string
           id: string
+          is_alumni: boolean
           mentoring_school: string | null
+          middle_name: string | null
           phone: string | null
           scholar_code: string
+          surname: string | null
           updated_at: string
           year: number | null
         }
@@ -871,6 +898,7 @@ export type Database = {
         | "alumni_manager"
         | "mentorship_coordinator"
         | "welfare_coordinator"
+        | "alumni"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1014,6 +1042,7 @@ export const Constants = {
         "alumni_manager",
         "mentorship_coordinator",
         "welfare_coordinator",
+        "alumni",
       ],
     },
   },
