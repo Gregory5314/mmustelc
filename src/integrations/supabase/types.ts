@@ -736,6 +736,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_pinned_items: { Args: never; Returns: undefined }
       get_chapter_admin: {
         Args: never
         Returns: {
