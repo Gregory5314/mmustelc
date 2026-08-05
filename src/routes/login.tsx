@@ -101,12 +101,18 @@ function LoginPage() {
           >
             {submitting ? "Signing in…" : "Sign In"}
           </button>
+          <p className="text-xs text-center">
+            <Link to="/forgot-password" className="text-[var(--brand)] font-semibold hover:underline">
+              Forgot your password?
+            </Link>
+          </p>
           <p className="text-xs text-muted-foreground text-center">
-            New member?{" "}
+            New member or alumnus?{" "}
             <Link to="/signup" className="text-[var(--brand)] font-semibold hover:underline">
               Create an account
             </Link>
           </p>
+
         </form>
       </div>
     </div>
