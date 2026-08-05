@@ -9,14 +9,27 @@ export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
       { title: "Sign up — MMUST ELP" },
-      { name: "description", content: "Create your MMUST ELP member account." },
+      { name: "description", content: "Create your MMUST ELP member or alumni account." },
+      { property: "og:title", content: "Sign up — MMUST ELP" },
+      { property: "og:description", content: "Create your MMUST ELP member or alumni account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SignupPage,
 });
 
-const schema = z.object({
-  fullName: z.string().trim().min(3, "Enter your full official names").max(120),
+const nameRule = z
+  .string()
+  .trim()
+  .min(2, "Enter a valid name")
+  .max(60)
+  .regex(/^[A-Za-z'’\-\s]+$/, "Letters only");
+
+const baseSchema = z.object({
+  firstName: nameRule,
+  middleName: z.union([z.literal(""), nameRule]),
+  surname: nameRule,
   phone: z
     .string()
     .trim()
@@ -25,19 +38,24 @@ const schema = z.object({
     .regex(/^[0-9 +\-()]+$/, "Digits only"),
   email: z.string().trim().toLowerCase().email("Enter a valid email").max(160),
   course: z.string().trim().min(2, "Enter your course").max(120),
-  year: z.coerce.number().int().min(1, "Year 1–7").max(7, "Year 1–7"),
   password: z.string().min(8, "At least 8 characters").max(72),
 });
+
+const thisYear = new Date().getFullYear();
 
 function SignupPage() {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const [isAlumni, setIsAlumni] = useState(false);
   const [form, setForm] = useState({
-    fullName: "",
+    firstName: "",
+    middleName: "",
+    surname: "",
     phone: "",
     email: "",
     course: "",
     year: "",
+    graduationYear: "",
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -56,12 +74,28 @@ function SignupPage() {
     setError(null);
     setInfo(null);
 
-    const parsed = schema.safeParse(form);
+    const parsed = baseSchema.safeParse(form);
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Please check your details");
       return;
     }
     const data = parsed.data;
+
+    let year: number | null = null;
+    let graduationYear: number | null = null;
+    if (isAlumni) {
+      graduationYear = Number(form.graduationYear);
+      if (!graduationYear || graduationYear < 1980 || graduationYear > thisYear) {
+        setError(`Enter a graduation year between 1980 and ${thisYear}`);
+        return;
+      }
+    } else {
+      year = Number(form.year);
+      if (!year || year < 1 || year > 7) {
+        setError("Select your year of study");
+        return;
+      }
+    }
 
     setSubmitting(true);
     const { error } = await supabase.auth.signUp({
@@ -70,11 +104,18 @@ function SignupPage() {
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
-          full_name: data.fullName,
+          first_name: data.firstName,
+          middle_name: data.middleName,
+          surname: data.surname,
+          full_name: [data.firstName, data.middleName, data.surname]
+            .filter(Boolean)
+            .join(" "),
           phone: data.phone,
           contact_email: data.email,
           course: data.course,
-          year: String(data.year),
+          year: year ? String(year) : "",
+          graduation_year: graduationYear ? String(graduationYear) : "",
+          is_alumni: isAlumni,
           scholar_code: data.email,
         },
       },
@@ -82,11 +123,24 @@ function SignupPage() {
     setSubmitting(false);
 
     if (error) {
-      setError(error.message);
+      const msg = error.message.toLowerCase();
+      if (msg.includes("already") && msg.includes("registered")) {
+        setError("An account with this email address already exists.");
+      } else if (msg.includes("email address already exists")) {
+        setError("An account with this email address already exists.");
+      } else if (msg.includes("exact names already exists")) {
+        setError("A member with these exact names already exists. Add your middle name or contact the secretary.");
+      } else {
+        setError(error.message);
+      }
       return;
     }
-    setInfo("Account created. Check your email to confirm, then sign in.");
-    setTimeout(() => navigate({ to: "/login", replace: true }), 1200);
+    setInfo(
+      isAlumni
+        ? "Alumni account created. Check your email to confirm, then sign in — the Alumni Manager will see you in the register."
+        : "Account created. Check your email to confirm, then sign in.",
+    );
+    setTimeout(() => navigate({ to: "/login", replace: true }), 1600);
   };
 
   return (
@@ -101,7 +155,26 @@ function SignupPage() {
             className="h-18 w-18 rounded-full bg-white p-1 object-contain shadow"
           />
           <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)]">Join MMUST ELP</h1>
-          <p className="text-sm text-muted-foreground">Create your member account</p>
+          <p className="text-sm text-muted-foreground">
+            Create your {isAlumni ? "alumni" : "member"} account
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-4 bg-muted rounded-xl p-1">
+          <button
+            type="button"
+            onClick={() => setIsAlumni(false)}
+            className={`py-2 rounded-lg text-sm font-bold transition-colors ${!isAlumni ? "bg-[var(--brand)] text-brand-foreground shadow" : "text-muted-foreground"}`}
+          >
+            Current scholar
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAlumni(true)}
+            className={`py-2 rounded-lg text-sm font-bold transition-colors ${isAlumni ? "bg-[var(--brand)] text-brand-foreground shadow" : "text-muted-foreground"}`}
+          >
+            Alumni
+          </button>
         </div>
 
         <form
@@ -109,12 +182,29 @@ function SignupPage() {
           className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-4"
         >
           <Field
-            id="fullName"
-            label="FULL OFFICIAL NAMES"
-            value={form.fullName}
-            onChange={(v) => set("fullName", v)}
-            placeholder="e.g. Jane Achieng Otieno"
-            autoComplete="name"
+            id="firstName"
+            label="FIRST NAME"
+            value={form.firstName}
+            onChange={(v) => set("firstName", v)}
+            placeholder="e.g. Jane"
+            autoComplete="given-name"
+          />
+          <Field
+            id="middleName"
+            label="MIDDLE NAME (OPTIONAL)"
+            value={form.middleName}
+            onChange={(v) => set("middleName", v)}
+            placeholder="e.g. Achieng"
+            autoComplete="additional-name"
+            required={false}
+          />
+          <Field
+            id="surname"
+            label="SURNAME"
+            value={form.surname}
+            onChange={(v) => set("surname", v)}
+            placeholder="e.g. Otieno"
+            autoComplete="family-name"
           />
           <Field
             id="phone"
@@ -141,28 +231,41 @@ function SignupPage() {
             onChange={(v) => set("course", v)}
             placeholder="e.g. B.Sc. Electrical Engineering"
           />
-          <div>
-            <label
-              className="text-xs font-bold tracking-wider text-muted-foreground"
-              htmlFor="year"
-            >
-              YEAR OF STUDY
-            </label>
-            <select
-              id="year"
-              value={form.year}
-              onChange={(e) => set("year", e.target.value)}
-              required
-              className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
-            >
-              <option value="">Select year</option>
-              {[1, 2, 3, 4, 5, 6].map((y) => (
-                <option key={y} value={y}>
-                  Year {y}
-                </option>
-              ))}
-            </select>
-          </div>
+
+          {isAlumni ? (
+            <Field
+              id="graduationYear"
+              label="YEAR OF GRADUATION"
+              type="number"
+              value={form.graduationYear}
+              onChange={(v) => set("graduationYear", v)}
+              placeholder={String(thisYear)}
+            />
+          ) : (
+            <div>
+              <label
+                className="text-xs font-bold tracking-wider text-muted-foreground"
+                htmlFor="year"
+              >
+                YEAR OF STUDY
+              </label>
+              <select
+                id="year"
+                value={form.year}
+                onChange={(e) => set("year", e.target.value)}
+                required
+                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              >
+                <option value="">Select year</option>
+                {[1, 2, 3, 4, 5, 6].map((y) => (
+                  <option key={y} value={y}>
+                    Year {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <Field
             id="password"
             label="PASSWORD"
@@ -185,7 +288,7 @@ function SignupPage() {
             disabled={submitting}
             className="w-full bg-[var(--brand)] text-brand-foreground font-bold py-2.5 rounded-lg shadow hover:bg-[var(--brand-deep)] transition-colors disabled:opacity-60"
           >
-            {submitting ? "Creating account…" : "Create Account"}
+            {submitting ? "Creating account…" : isAlumni ? "Create Alumni Account" : "Create Account"}
           </button>
 
           <p className="text-xs text-muted-foreground text-center">
@@ -208,6 +311,7 @@ function Field({
   type = "text",
   placeholder,
   autoComplete,
+  required = true,
 }: {
   id: string;
   label: string;
@@ -216,6 +320,7 @@ function Field({
   type?: string;
   placeholder?: string;
   autoComplete?: string;
+  required?: boolean;
 }) {
   return (
     <div>
@@ -229,7 +334,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        required
+        required={required}
         className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
       />
     </div>
