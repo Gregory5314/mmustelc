@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { IdleTimeout } from "@/components/IdleTimeout";
+import { haptic } from "@/lib/haptics";
 
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
@@ -92,9 +93,13 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
     }
   };
 
+  const pathname = router.state.location.pathname;
+
+
   useEffect(() => {
     if (!isLoading && !user) navigate({ to: "/login", replace: true });
   }, [user, isLoading, navigate]);
+
 
 
   useEffect(() => {
@@ -159,10 +164,10 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           {refreshing ? "Refreshing…" : pullY >= THRESHOLD ? "Release to refresh" : "Pull to refresh"}
         </div>
       )}
-      <header className="bg-[var(--brand)] text-brand-foreground px-4 pt-3 pb-4 rounded-b-2xl shadow-md">
+      <header className="gradient-brand gradient-animate text-brand-foreground px-4 pt-3 pb-4 rounded-b-2xl shadow-md animate-page-in">
         <Link to="/" className="flex items-center gap-3 -m-1 p-1 rounded-lg hover:bg-white/5 active:bg-white/10 transition-colors" aria-label="Go to dashboard">
           <img src={chapterLogo ?? defaultLogo} alt={`${chapterName} crest`} width={48} height={48}
-               className="h-12 w-12 rounded-full bg-white p-0.5 object-contain" />
+               className="h-12 w-12 rounded-full bg-white p-0.5 object-contain animate-pop-in" />
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-extrabold leading-tight tracking-tight truncate">{chapterName}</h1>
             <p className="text-xs opacity-90">Equity Leaders Program</p>
@@ -175,23 +180,24 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
       </header>
 
 
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background">
+      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <button onClick={() => setMenuOpen(true)} aria-label="Open menu"
-            className="p-1.5 -ml-1.5 rounded-md hover:bg-accent">
+          <button onClick={() => { haptic("medium"); setMenuOpen(true); }} aria-label="Open menu"
+            className="p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <h2 className="flex-1 text-center text-2xl font-extrabold text-[var(--brand)] -ml-6">{title}</h2>
+          <h2 className="flex-1 text-center text-2xl font-extrabold gradient-text -ml-6 animate-pop-in">{title}</h2>
         </div>
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
 
-      <main>{children}</main>
+
+      <main key={pathname} className="animate-page-in">{children}</main>
 
       {menuOpen && (
         <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setMenuOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 w-72 bg-[var(--brand-deep)] text-brand-foreground z-50 p-2 rounded-r-2xl shadow-2xl animate-in slide-in-from-left overflow-y-auto">
+          <div className="fixed inset-0 bg-black/40 z-40 animate-in fade-in" onClick={() => setMenuOpen(false)} />
+          <aside className="fixed top-0 left-0 bottom-0 w-72 gradient-brand-deep gradient-animate text-brand-foreground z-50 p-2 rounded-r-2xl shadow-2xl animate-in slide-in-from-left overflow-y-auto">
             <nav className="mt-2">
               {memberMenu.map(({ icon: Icon, label, to }) => (
                 <button key={label} onClick={() => { setMenuOpen(false); navigate({ to: to as string }); }}
@@ -235,7 +241,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
               className="flex flex-col items-center justify-center py-2.5 gap-1 group">
               {({ isActive }) => (
                 <>
-                  <div className="relative">
+                  <div className={`relative transition-transform duration-200 ${isActive ? "scale-110" : ""}`}>
                     <Icon className={`h-6 w-6 ${isActive ? "text-[var(--brand-accent)]" : "text-[var(--brand)]"}`} />
                     {badge && unreadCount > 0 && (
                       <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-[var(--brand-accent)] text-white text-[10px] font-bold flex items-center justify-center">
