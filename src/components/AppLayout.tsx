@@ -236,7 +236,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
               className="flex flex-col items-center justify-center py-2.5 gap-1 group">
               {({ isActive }) => (
                 <>
-                  <div className="relative">
+                  <div className={`relative transition-transform duration-200 ${isActive ? "scale-110" : ""}`}>
                     <Icon className={`h-6 w-6 ${isActive ? "text-[var(--brand-accent)]" : "text-[var(--brand)]"}`} />
                     {badge && unreadCount > 0 && (
                       <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-[var(--brand-accent)] text-white text-[10px] font-bold flex items-center justify-center">
