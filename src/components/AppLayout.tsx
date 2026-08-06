@@ -95,11 +95,6 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
 
   const pathname = router.state.location.pathname;
 
-  useEffect(() => {
-    const offHaptics = installGlobalHaptics();
-    const offReveal = installScrollReveal();
-    return () => { offHaptics(); offReveal(); };
-  }, [pathname]);
 
   useEffect(() => {
     if (!isLoading && !user) navigate({ to: "/login", replace: true });
