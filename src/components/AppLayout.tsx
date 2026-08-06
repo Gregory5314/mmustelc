@@ -187,12 +187,12 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
 
-      <main>{children}</main>
+      <main key={pathname} className="animate-page-in">{children}</main>
 
       {menuOpen && (
         <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setMenuOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 w-72 bg-[var(--brand-deep)] text-brand-foreground z-50 p-2 rounded-r-2xl shadow-2xl animate-in slide-in-from-left overflow-y-auto">
+          <div className="fixed inset-0 bg-black/40 z-40 animate-in fade-in" onClick={() => setMenuOpen(false)} />
+          <aside className="fixed top-0 left-0 bottom-0 w-72 gradient-brand-deep gradient-animate text-brand-foreground z-50 p-2 rounded-r-2xl shadow-2xl animate-in slide-in-from-left overflow-y-auto">
             <nav className="mt-2">
               {memberMenu.map(({ icon: Icon, label, to }) => (
                 <button key={label} onClick={() => { setMenuOpen(false); navigate({ to: to as string }); }}
