@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { IdleTimeout } from "@/components/IdleTimeout";
-import { haptic, installGlobalHaptics, installScrollReveal } from "@/lib/haptics";
+import { haptic } from "@/lib/haptics";
 
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
