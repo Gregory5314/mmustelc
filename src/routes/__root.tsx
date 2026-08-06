@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -11,6 +13,18 @@ import {
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PermissionsProvider } from "@/hooks/use-permissions";
+import { installGlobalHaptics, installScrollReveal } from "@/lib/haptics";
+
+function MotionLayer() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    const offHaptics = installGlobalHaptics();
+    const offReveal = installScrollReveal();
+    return () => { offHaptics(); offReveal(); };
+  }, [pathname]);
+  return null;
+}
+
 
 function NotFoundComponent() {
   return (
