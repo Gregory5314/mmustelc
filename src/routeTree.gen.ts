@@ -23,6 +23,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as ConstitutionRouteImport } from './routes/constitution'
 import { Route as ComplaintRouteImport } from './routes/complaint'
+import { Route as CheckEmailRouteImport } from './routes/check-email'
 import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
@@ -108,6 +109,11 @@ const ComplaintRoute = ComplaintRouteImport.update({
   path: '/complaint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckEmailRoute = CheckEmailRouteImport.update({
+  id: '/check-email',
+  path: '/check-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActivitiesRoute = ActivitiesRouteImport.update({
   id: '/activities',
   path: '/activities',
@@ -182,6 +188,7 @@ const AdminAlumniRoute = AdminAlumniRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/check-email': typeof CheckEmailRoute
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/check-email': typeof CheckEmailRoute
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/check-email': typeof CheckEmailRoute
   '/complaint': typeof ComplaintRoute
   '/constitution': typeof ConstitutionRoute
   '/finance': typeof FinanceRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/activities'
+    | '/check-email'
     | '/complaint'
     | '/constitution'
     | '/finance'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/activities'
+    | '/check-email'
     | '/complaint'
     | '/constitution'
     | '/finance'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/activities'
+    | '/check-email'
     | '/complaint'
     | '/constitution'
     | '/finance'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivitiesRoute: typeof ActivitiesRoute
+  CheckEmailRoute: typeof CheckEmailRoute
   ComplaintRoute: typeof ComplaintRoute
   ConstitutionRoute: typeof ConstitutionRoute
   FinanceRoute: typeof FinanceRoute
@@ -493,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComplaintRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/check-email': {
+      id: '/check-email'
+      path: '/check-email'
+      fullPath: '/check-email'
+      preLoaderRoute: typeof CheckEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/activities': {
       id: '/activities'
       path: '/activities'
@@ -608,6 +628,7 @@ const ProfileRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivitiesRoute: ActivitiesRoute,
+  CheckEmailRoute: CheckEmailRoute,
   ComplaintRoute: ComplaintRoute,
   ConstitutionRoute: ConstitutionRoute,
   FinanceRoute: FinanceRoute,

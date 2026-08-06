@@ -10,6 +10,8 @@ import defaultLogo from "@/assets/elp-logo.png";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
+import { IdleTimeout } from "@/components/IdleTimeout";
+
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
 
@@ -248,7 +250,10 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           ))}
         </div>
       </nav>
+
+      <IdleTimeout />
     </div>
+
   );
 }
 

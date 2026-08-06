@@ -137,10 +137,11 @@ function SignupPage() {
     }
     setInfo(
       isAlumni
-        ? "Alumni account created. Check your email to confirm, then sign in — the Alumni Manager will see you in the register."
-        : "Account created. Check your email to confirm, then sign in.",
+        ? "Alumni account created — check your email to confirm. The Alumni Manager will see you in the register."
+        : "Account created — check your email to confirm.",
     );
-    setTimeout(() => navigate({ to: "/login", replace: true }), 1600);
+    navigate({ to: "/check-email", search: { type: "verify", email: data.email }, replace: true });
+
   };
 
   return (

@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/elp-logo.png";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/forgot-password")({
 const schema = z.object({ email: z.string().trim().toLowerCase().email("Enter a valid email").max(160) });
 
 function ForgotPasswordPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -44,7 +46,13 @@ function ForgotPasswordPage() {
       return;
     }
     setSent(true);
+    navigate({
+      to: "/check-email",
+      search: { type: "reset", email: parsed.data.email },
+      replace: true,
+    });
   };
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
