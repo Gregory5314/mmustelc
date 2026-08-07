@@ -102,7 +102,7 @@ function LoginPage() {
           </p>
 
         </form>
-      </div>
-    </div>
+    </AuthShell>
+
   );
 }
