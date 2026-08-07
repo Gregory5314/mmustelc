@@ -68,10 +68,12 @@ function Page() {
         id: string; logo_url?: string | null; name?: string | null;
         motto?: string | null; about?: string | null;
         contact_email?: string | null; contact_phone?: string | null;
+        login_bg_url?: string | null;
       };
       if (row) {
         setId(row.id);
         setLogoUrl(row.logo_url ?? null);
+        setBgUrl(row.login_bg_url ?? null);
         setForm({
           name: row.name ?? "",
           motto: row.motto ?? "",
@@ -96,14 +98,15 @@ function Page() {
     toast.success("Chapter profile updated.");
   };
 
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const pickFile = (which: "logo" | "bg") => (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
     if (!f.type.startsWith("image/")) return toast.error("Please choose an image");
-    if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    if (f.size > 8 * 1024 * 1024) return toast.error("Image must be under 8MB");
     const reader = new FileReader();
     reader.onload = () => {
+      setTarget(which);
       setCropSrc(reader.result as string);
       setCropMime(f.type);
       setCrop({ x: 0, y: 0 });
@@ -114,6 +117,8 @@ function Page() {
     reader.readAsDataURL(f);
   };
 
+  const onFile = pickFile("logo");
+
   const confirmCrop = async () => {
     if (!id || !cropSrc || !croppedArea) return;
     setUploading(true);
@@ -121,19 +126,21 @@ function Page() {
     try {
       const blob = await getCroppedBlob(cropSrc, croppedArea, cropMime);
       const ext = (cropMime.split("/")[1] || "png").replace("jpeg", "jpg");
-      const path = `chapter/logo-${Date.now()}.${ext}`;
+      const path = `chapter/${target === "bg" ? "login-bg" : "logo"}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("avatars")
         .upload(path, blob, { contentType: cropMime, cacheControl: "31536000" });
       if (upErr) throw upErr;
       const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      const patch = target === "bg" ? { login_bg_url: publicUrl } : { logo_url: publicUrl };
       const { error } = await supabase
         .from("chapter_profile")
-        .update({ logo_url: publicUrl, updated_at: new Date().toISOString() })
+        .update({ ...patch, updated_at: new Date().toISOString() })
         .eq("id", id);
       if (error) throw error;
-      setLogoUrl(publicUrl);
-      toast.success("Chapter logo updated.");
+      if (target === "bg") setBgUrl(publicUrl);
+      else setLogoUrl(publicUrl);
+      toast.success(target === "bg" ? "Login background updated." : "Chapter logo updated.");
     } catch (err: any) {
       toast.error(err?.message ?? "Upload failed");
     } finally {
@@ -141,6 +148,18 @@ function Page() {
       setCropSrc(null);
     }
   };
+
+  const removeBg = async () => {
+    if (!id) return;
+    const { error } = await supabase
+      .from("chapter_profile")
+      .update({ login_bg_url: null, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    setBgUrl(null);
+    toast.success("Login background removed.");
+  };
+
 
   return (
     <>
