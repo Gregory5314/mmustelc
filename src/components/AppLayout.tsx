@@ -192,7 +192,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
       </div>
 
 
-      <main key={pathname} className="animate-page-in">{children}</main>
+      <main key={pathname} className="route-transition">{children}</main>
 
       {menuOpen && (
         <>
