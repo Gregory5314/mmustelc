@@ -43,24 +43,12 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={logo}
-            alt="MMUST ELP"
-            width={72}
-            height={72}
-            className="h-18 w-18 rounded-full bg-white p-1 object-contain shadow"
-          />
-          <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)]">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">Sign in to your MMUST ELP account</p>
-        </div>
-
+    <AuthShell title="Welcome back" subtitle="Sign in to your MMUST ELP account">
         <form
           onSubmit={onSubmit}
-          className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-4"
+          className="bg-card/95 border border-border rounded-2xl p-5 shadow-sm space-y-4"
         >
+
           <div>
             <label className="text-xs font-bold tracking-wider text-muted-foreground" htmlFor="identifier">
               EMAIL OR SCHOLAR CODE
