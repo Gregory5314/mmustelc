@@ -40,6 +40,7 @@ async function getCroppedBlob(imageSrc: string, crop: Area, mime: string): Promi
 function Page() {
   const [id, setId] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [bgUrl, setBgUrl] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     motto: "",
@@ -49,6 +50,8 @@ function Page() {
   });
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const bgFileRef = useRef<HTMLInputElement>(null);
+  const [target, setTarget] = useState<"logo" | "bg">("logo");
 
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -57,6 +60,7 @@ function Page() {
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
   const onCropComplete = useCallback((_: Area, px: Area) => setCroppedArea(px), []);
+
 
   const load = () =>
     supabase.rpc("get_chapter_admin").then(({ data }) => {
