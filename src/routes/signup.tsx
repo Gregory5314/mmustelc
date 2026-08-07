@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import logo from "@/assets/elp-logo.png";
+import { AuthShell } from "@/components/AuthShell";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -145,21 +145,12 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={logo}
-            alt="MMUST ELP"
-            width={72}
-            height={72}
-            className="h-18 w-18 rounded-full bg-white p-1 object-contain shadow"
-          />
-          <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)]">Join MMUST ELP</h1>
-          <p className="text-sm text-muted-foreground">
-            Create your {isAlumni ? "alumni" : "member"} account
-          </p>
-        </div>
+    <AuthShell
+      title="Join MMUST ELP"
+      subtitle={`Create your ${isAlumni ? "alumni" : "member"} account`}
+    >
+      <div className="w-full">
+
 
         <div className="grid grid-cols-2 gap-2 mb-4 bg-muted rounded-xl p-1">
           <button
@@ -300,7 +291,8 @@ function SignupPage() {
           </p>
         </form>
       </div>
-    </div>
+    </AuthShell>
+
   );
 }
 
