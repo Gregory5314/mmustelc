@@ -285,7 +285,7 @@ function Page() {
       <Dialog open={cropOpen} onOpenChange={(o) => { if (!o) { setCropOpen(false); setCropSrc(null); } }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><CropIcon className="h-4 w-4" /> Crop logo (1:1)</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><CropIcon className="h-4 w-4" /> {target === "bg" ? "Crop background (9:16)" : "Crop logo (1:1)"}</DialogTitle>
           </DialogHeader>
           <div className="relative w-full h-72 bg-black rounded-md overflow-hidden">
             {cropSrc && (
@@ -293,9 +293,10 @@ function Page() {
                 image={cropSrc}
                 crop={crop}
                 zoom={zoom}
-                aspect={1}
-                cropShape="round"
+                aspect={target === "bg" ? 9 / 16 : 1}
+                cropShape={target === "bg" ? "rect" : "round"}
                 showGrid={false}
+
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={onCropComplete}
