@@ -161,29 +161,42 @@
   -webkit-text-fill-color: transparent;
 }
 @utility animate-page-in {
-  animation: page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @utility animate-pop-in {
-  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: pop-in 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+/* Uniform route entrance: page fades/lifts in, direct children pop with a stagger. */
+@utility route-transition {
+  animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.route-transition > * {
+  animation: reveal-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.route-transition > *:nth-child(1) { animation-delay: 0.02s; }
+.route-transition > *:nth-child(2) { animation-delay: 0.06s; }
+.route-transition > *:nth-child(3) { animation-delay: 0.1s; }
+.route-transition > *:nth-child(4) { animation-delay: 0.14s; }
+.route-transition > *:nth-child(n + 5) { animation-delay: 0.18s; }
 
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translate3d(0, 18px, 0);
   will-change: opacity, transform;
 }
 .reveal-on-scroll.is-revealed {
-  animation: reveal-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: reveal-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Dynamic press feedback on every interactive element */
+/* Dynamic press feedback on every interactive element (transform/opacity only). */
 button,
 a,
 [role="button"],
 summary,
 select {
-  transition: transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 180ms ease, filter 180ms ease, background-color 180ms ease;
+  transition: transform 130ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 150ms ease, background-color 150ms ease;
 }
 button:active:not(:disabled),
 a:active,
@@ -194,9 +207,10 @@ summary:active {
 @media (hover: hover) {
   button:hover:not(:disabled),
   [role="button"]:hover {
-    filter: brightness(1.04);
+    opacity: 0.92;
   }
 }
+
 button:focus-visible,
 a:focus-visible,
 [role="button"]:focus-visible {
