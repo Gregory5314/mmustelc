@@ -196,6 +196,51 @@ function Page() {
         </div>
       </section>
 
+      <section className="px-4 mt-4">
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <p className="text-sm font-extrabold text-[var(--brand)]">Login Background</p>
+          <p className="text-xs text-muted-foreground mb-3">
+            Shown behind the sign-in and sign-up screens (crop 9:16, max 8MB)
+          </p>
+          <div className="aspect-[9/16] max-h-56 w-full rounded-xl bg-muted overflow-hidden flex items-center justify-center mb-3">
+            {bgUrl ? (
+              <img src={bgUrl} alt="Login background" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-[11px] text-muted-foreground">No background set</span>
+            )}
+          </div>
+          <input
+            ref={bgFileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={pickFile("bg")}
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => bgFileRef.current?.click()}
+              disabled={uploading}
+              className="inline-flex items-center gap-1.5 bg-[var(--brand)] text-brand-foreground text-xs font-bold px-3 py-2 rounded-lg disabled:opacity-60"
+            >
+              <ImagePlus className="h-3.5 w-3.5" />
+              {uploading ? "Uploading…" : bgUrl ? "Change background" : "Upload background"}
+            </button>
+            {bgUrl && (
+              <button
+                type="button"
+                onClick={removeBg}
+                className="text-xs font-bold px-3 py-2 rounded-lg border border-border text-muted-foreground"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+
+
       <section className="px-4 mt-4 pb-4">
         <form onSubmit={onSubmit} className="bg-card border border-border rounded-2xl p-4 space-y-3">
           <input
