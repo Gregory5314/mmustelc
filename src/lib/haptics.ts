@@ -33,23 +33,32 @@ export function installGlobalHaptics() {
   return () => document.removeEventListener("pointerdown", onPointerDown);
 }
 
-/** Reveals elements on scroll by toggling the `is-revealed` class. */
+/** Reveals elements on scroll by toggling the `is-revealed` class (rAF-batched, throttled). */
 export function installScrollReveal(root?: HTMLElement | null) {
   if (typeof window === "undefined" || !("IntersectionObserver" in window)) return () => {};
+  const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return () => {};
+
   const scope: ParentNode = root ?? document;
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-revealed");
-          observer.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) continue;
+        const el = entry.target as HTMLElement;
+        observer.unobserve(el);
+        el.classList.add("is-revealed");
+        // Drop compositor hints once the animation is done to keep scrolling cheap.
+        const clear = () => el.style.removeProperty("will-change");
+        el.addEventListener("animationend", clear, { once: true });
+        window.setTimeout(clear, 900);
       }
     },
     { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
   );
 
+  let scheduled = false;
   const collect = () => {
+    scheduled = false;
     scope
       .querySelectorAll<HTMLElement>("main section, main article, main [data-reveal]")
       .forEach((el) => {
@@ -58,9 +67,14 @@ export function installScrollReveal(root?: HTMLElement | null) {
         observer.observe(el);
       });
   };
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(collect);
+  };
   collect();
 
-  const mo = new MutationObserver(() => collect());
+  const mo = new MutationObserver(schedule);
   mo.observe(document.body, { childList: true, subtree: true });
 
   return () => {
@@ -68,3 +82,4 @@ export function installScrollReveal(root?: HTMLElement | null) {
     observer.disconnect();
   };
 }
+
