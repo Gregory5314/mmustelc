@@ -291,7 +291,8 @@ function SignupPage() {
           </p>
         </form>
       </div>
-    </div>
+    </AuthShell>
+
   );
 }
 
