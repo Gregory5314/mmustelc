@@ -310,7 +310,7 @@ function Page() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCropOpen(false)}>Cancel</Button>
-            <Button onClick={confirmCrop} disabled={!croppedArea}>Save logo</Button>
+            <Button onClick={confirmCrop} disabled={!croppedArea}>{target === "bg" ? "Save background" : "Save logo"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
