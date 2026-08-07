@@ -100,6 +100,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           id: string
+          login_bg_url: string | null
           logo_url: string | null
           motto: string | null
           name: string
@@ -111,6 +112,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           id?: string
+          login_bg_url?: string | null
           logo_url?: string | null
           motto?: string | null
           name?: string
@@ -122,6 +124,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           id?: string
+          login_bg_url?: string | null
           logo_url?: string | null
           motto?: string | null
           name?: string
@@ -767,6 +770,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           id: string
+          login_bg_url: string | null
           logo_url: string | null
           motto: string | null
           name: string
@@ -779,6 +783,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_chapter_branding: {
+        Args: never
+        Returns: {
+          login_bg_url: string
+          logo_url: string
+          name: string
+        }[]
       }
       get_member_admin_view: {
         Args: { _user_id: string }
