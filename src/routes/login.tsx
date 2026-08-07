@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { scholarCodeToEmail } from "@/lib/scholar";
-import logo from "@/assets/elp-logo.png";
+import { AuthShell } from "@/components/AuthShell";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
