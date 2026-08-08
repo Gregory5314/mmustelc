@@ -19,7 +19,9 @@ type MenuItem = { icon: any; label: string; to: string; perm?: string | string[]
 const memberMenu: MenuItem[] = [
   { icon: Home, label: "Dashboard", to: "/" },
   { icon: User, label: "My Profile", to: "/profile" },
+  { icon: Shield, label: "Chapter Profile", to: "/chapter-profile" },
   { icon: CheckSquare, label: "Chapter Activities", to: "/activities" },
+
   { icon: BookOpen, label: "MMUST ELC Constitution", to: "/constitution" },
   { icon: Users, label: "Members List", to: "/members" },
   { icon: Shield, label: "Chapter Officials", to: "/officials" },
