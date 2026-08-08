@@ -9,7 +9,9 @@ export const Route = createFileRoute("/more")({
 
 const items = [
   { icon: User, label: "My Profile", to: "/profile" as const },
+  { icon: Shield, label: "Chapter Profile", to: "/chapter-profile" as const },
   { icon: CheckSquare, label: "Chapter Activities", to: "/activities" as const },
+
   { icon: BookOpen, label: "MMUST ELC Constitution", to: "/constitution" as const },
   { icon: Users, label: "Members List", to: "/members" as const },
   { icon: Shield, label: "Chapter Officials", to: "/officials" as const },
