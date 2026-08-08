@@ -102,10 +102,12 @@ export type Database = {
           id: string
           login_bg_url: string | null
           logo_url: string | null
+          mission: string | null
           motto: string | null
           name: string
           updated_at: string
           updated_by: string | null
+          vision: string | null
         }
         Insert: {
           about?: string | null
@@ -114,10 +116,12 @@ export type Database = {
           id?: string
           login_bg_url?: string | null
           logo_url?: string | null
+          mission?: string | null
           motto?: string | null
           name?: string
           updated_at?: string
           updated_by?: string | null
+          vision?: string | null
         }
         Update: {
           about?: string | null
@@ -126,10 +130,63 @@ export type Database = {
           id?: string
           login_bg_url?: string | null
           logo_url?: string | null
+          mission?: string | null
           motto?: string | null
           name?: string
           updated_at?: string
           updated_by?: string | null
+          vision?: string | null
+        }
+        Relationships: []
+      }
+      chapter_sections: {
+        Row: {
+          bg_color: string | null
+          bg_image_url: string | null
+          bg_kind: string
+          body: string | null
+          created_at: string
+          created_by: string | null
+          gradient_from: string | null
+          gradient_to: string | null
+          id: string
+          is_active: boolean
+          position: number
+          text_color: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string | null
+          bg_image_url?: string | null
+          bg_kind?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          id?: string
+          is_active?: boolean
+          position?: number
+          text_color?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string | null
+          bg_image_url?: string | null
+          bg_kind?: string
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          gradient_from?: string | null
+          gradient_to?: string | null
+          id?: string
+          is_active?: boolean
+          position?: number
+          text_color?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -772,10 +829,12 @@ export type Database = {
           id: string
           login_bg_url: string | null
           logo_url: string | null
+          mission: string | null
           motto: string | null
           name: string
           updated_at: string
           updated_by: string | null
+          vision: string | null
         }
         SetofOptions: {
           from: "*"
@@ -789,7 +848,19 @@ export type Database = {
         Returns: {
           login_bg_url: string
           logo_url: string
+          motto: string
           name: string
+        }[]
+      }
+      get_chapter_public: {
+        Args: never
+        Returns: {
+          about: string
+          logo_url: string
+          mission: string
+          motto: string
+          name: string
+          vision: string
         }[]
       }
       get_member_admin_view: {

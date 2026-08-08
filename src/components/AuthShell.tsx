@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import defaultLogo from "@/assets/elp-logo.png";
 
-export type Branding = { name: string | null; logo_url: string | null; login_bg_url: string | null };
+export type Branding = { name: string | null; logo_url: string | null; login_bg_url: string | null; motto?: string | null };
 
 const CACHE_KEY = "elp:branding";
 let cached: Branding | null = null;
@@ -61,6 +61,7 @@ export function AuthShell({
   const logo = branding?.logo_url ?? defaultLogo;
   const name = branding?.name ?? "MMUST ELP";
 
+
   return (
     <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
       {bg && (
@@ -85,6 +86,9 @@ export function AuthShell({
           />
           <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)] text-center">{title}</h1>
           {subtitle && <p className="text-sm text-muted-foreground text-center">{subtitle}</p>}
+          {branding?.motto && (
+            <p className="mt-1 text-xs italic text-[var(--brand)] text-center">“{branding.motto}”</p>
+          )}
         </div>
         {children}
       </div>

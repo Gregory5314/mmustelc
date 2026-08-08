@@ -9,6 +9,7 @@ import Cropper, { type Area } from "react-easy-crop";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { ChapterSectionsAdmin } from "@/components/ChapterSectionsAdmin";
 
 export const Route = createFileRoute("/admin/chapter")({
   head: () => ({ meta: [{ title: "Chapter Profile — MMUST ELP" }] }),
@@ -44,6 +45,8 @@ function Page() {
   const [form, setForm] = useState({
     name: "",
     motto: "",
+    mission: "",
+    vision: "",
     about: "",
     contact_email: "",
     contact_phone: "",
@@ -66,7 +69,7 @@ function Page() {
     supabase.rpc("get_chapter_admin").then(({ data }) => {
       const row = (Array.isArray(data) ? data[0] : data) as null | {
         id: string; logo_url?: string | null; name?: string | null;
-        motto?: string | null; about?: string | null;
+        motto?: string | null; mission?: string | null; vision?: string | null; about?: string | null;
         contact_email?: string | null; contact_phone?: string | null;
         login_bg_url?: string | null;
       };
@@ -77,6 +80,8 @@ function Page() {
         setForm({
           name: row.name ?? "",
           motto: row.motto ?? "",
+          mission: row.mission ?? "",
+          vision: row.vision ?? "",
           about: row.about ?? "",
           contact_email: row.contact_email ?? "",
           contact_phone: row.contact_phone ?? "",
@@ -257,6 +262,20 @@ function Page() {
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
           />
           <textarea
+            placeholder="Mission"
+            rows={3}
+            value={form.mission}
+            onChange={(e) => setForm({ ...form, mission: e.target.value })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+          <textarea
+            placeholder="Vision"
+            rows={3}
+            value={form.vision}
+            onChange={(e) => setForm({ ...form, vision: e.target.value })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+          <textarea
             placeholder="About"
             rows={4}
             value={form.about}
@@ -281,6 +300,8 @@ function Page() {
           </button>
         </form>
       </section>
+
+      <ChapterSectionsAdmin />
 
       <Dialog open={cropOpen} onOpenChange={(o) => { if (!o) { setCropOpen(false); setCropSrc(null); } }}>
         <DialogContent className="max-w-lg">
