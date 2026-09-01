@@ -3,7 +3,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePermissions } from "@/hooks/use-permissions";
-import { Search, X } from "lucide-react";
+import { Search, X, FileDown } from "lucide-react";
+
 
 export const Route = createFileRoute("/members")({
   head: () => ({
@@ -52,6 +53,8 @@ function Members() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [term, setTerm] = useState("");
+  const [year, setYear] = useState<string>("all");
+  const [exporting, setExporting] = useState(false);
   const [selected, setSelected] = useState<Details | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
@@ -69,17 +72,63 @@ function Members() {
     return () => clearTimeout(id);
   }, [q]);
 
+  const years = useMemo(() => {
+    const set = new Set<number>();
+    members.forEach((m) => m.year && set.add(m.year));
+    return [...set].sort((a, b) => a - b);
+  }, [members]);
+
   const filtered = useMemo(() => {
     const t = term.toLowerCase();
-    if (!t) return members;
-    return members.filter((m) =>
-      [m.full_name, m.course ?? "", m.year ? `year ${m.year}` : ""]
-        .join(" ")
-        .toLowerCase()
-        .includes(t),
-    );
-  }, [members, term]);
+    return members
+      .filter((m) => {
+        if (year === "all") return true;
+        if (year === "none") return !m.year;
+        return String(m.year) === year;
+      })
+      .filter((m) =>
+        !t
+          ? true
+          : [m.full_name, m.course ?? "", m.year ? `year ${m.year}` : ""]
+              .join(" ")
+              .toLowerCase()
+              .includes(t),
+      )
+      .sort((a, b) => (a.full_name || "").localeCompare(b.full_name || ""));
+  }, [members, term, year]);
 
+  const exportPdf = async () => {
+    setExporting(true);
+    try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
+      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const scope =
+        year === "all" ? "All years" : year === "none" ? "Year not set" : `Year ${year}`;
+      doc.setFontSize(15);
+      doc.text("MMUST ELP — Members List", 40, 44);
+      doc.setFontSize(10);
+      doc.text(`${scope} · ${filtered.length} member(s) · ${new Date().toLocaleDateString()}`, 40, 62);
+      autoTable(doc, {
+        startY: 78,
+        head: [["#", "Full name", "Course", "Year"]],
+        body: filtered.map((m, i) => [
+          String(i + 1),
+          m.full_name || "—",
+          m.course || "—",
+          m.year ? `Year ${m.year}` : "—",
+        ]),
+        styles: { fontSize: 9, cellPadding: 5 },
+        headStyles: { fillColor: [185, 28, 28], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+      });
+      doc.save(`mmust-elp-members-${year}.pdf`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const openMember = async (m: Member) => {
     if (!isOfficer) return;
@@ -105,7 +154,7 @@ function Members() {
 
   return (
     <AppLayout title="Members List" subtitle={`${members.length} chapter members.`}>
-      <section className="px-4 mt-4">
+      <section className="px-4 mt-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -126,9 +175,40 @@ function Members() {
             </button>
           )}
         </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {[
+            { v: "all", label: "All years" },
+            ...years.map((y) => ({ v: String(y), label: `Year ${y}` })),
+            { v: "none", label: "Not set" },
+          ].map((opt) => (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setYear(opt.v)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                year === opt.v
+                  ? "bg-[var(--brand)] text-brand-foreground border-transparent"
+                  : "bg-card text-muted-foreground border-border"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={exportPdf}
+          disabled={exporting || filtered.length === 0}
+          className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground disabled:opacity-50"
+        >
+          <FileDown className="h-4 w-4" />
+          {exporting ? "Preparing PDF…" : `Export ${filtered.length} member(s) as PDF`}
+        </button>
       </section>
 
-      <section className="px-4 mt-3 space-y-2">
+      <section className="px-4 mt-3">
         {loading && <p className="text-sm text-muted-foreground text-center py-6">Loading members…</p>}
         {!loading && members.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-6">
@@ -136,53 +216,71 @@ function Members() {
           </p>
         )}
         {!loading && members.length > 0 && filtered.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">No members match "{term}".</p>
+          <p className="text-sm text-muted-foreground text-center py-6">No members match this filter.</p>
         )}
-        {filtered.map((m) => {
-          const inner = (
-            <>
-              {m.avatar_url ? (
-                <img
-                  src={m.avatar_url}
-                  alt={m.full_name || "Member photo"}
-                  loading="lazy"
-                  className="h-10 w-10 rounded-full object-cover border border-border"
-                />
-              ) : (
-                <div className="h-10 w-10 rounded-full bg-[var(--brand)] text-brand-foreground flex items-center justify-center font-extrabold">
-                  {initialsOf(m.full_name)}
-                </div>
-              )}
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-bold text-foreground truncate">
-                  <Highlight text={m.full_name || "—"} term={term} />
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  <Highlight
-                    text={[m.course, m.year ? `Year ${m.year}` : null].filter(Boolean).join(" • ") || "Member"}
-                    term={term}
-                  />
-                </p>
-              </div>
-            </>
 
-          );
-          return isOfficer ? (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => openMember(m)}
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3 active:scale-[0.99] transition-transform"
-            >
-              {inner}
-            </button>
-          ) : (
-            <div key={m.id} className="bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3">
-              {inner}
+        {filtered.length > 0 && (
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="grid grid-cols-[2rem_1fr_4.5rem] gap-2 px-3 py-2 border-b border-border bg-muted/50 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              <span>#</span>
+              <span>Member</span>
+              <span className="text-right">Year</span>
             </div>
-          );
-        })}
+            <ul className="divide-y divide-border">
+              {filtered.map((m, i) => {
+                const inner = (
+                  <>
+                    <span className="text-xs text-muted-foreground tabular-nums pt-1">{i + 1}</span>
+                    <span className="flex items-center gap-3 min-w-0">
+                      {m.avatar_url ? (
+                        <img
+                          src={m.avatar_url}
+                          alt={m.full_name || "Member photo"}
+                          loading="lazy"
+                          className="h-9 w-9 rounded-full object-cover border border-border shrink-0"
+                        />
+                      ) : (
+                        <span className="h-9 w-9 shrink-0 rounded-full bg-[var(--brand)] text-brand-foreground flex items-center justify-center text-xs font-extrabold">
+                          {initialsOf(m.full_name)}
+                        </span>
+                      )}
+                      <span className="min-w-0 text-left">
+                        <span className="block text-sm font-bold text-foreground truncate">
+                          <Highlight text={m.full_name || "—"} term={term} />
+                        </span>
+                        <span className="block text-xs text-muted-foreground truncate">
+                          <Highlight text={m.course || "Member"} term={term} />
+                        </span>
+                      </span>
+                    </span>
+                    <span className="text-right text-xs font-semibold text-muted-foreground pt-1">
+                      {m.year ? `Y${m.year}` : "—"}
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={m.id}>
+                    {isOfficer ? (
+                      <button
+                        type="button"
+                        onClick={() => openMember(m)}
+                        className="w-full grid grid-cols-[2rem_1fr_4.5rem] gap-2 items-start px-3 py-2.5 active:scale-[0.99] transition-transform"
+                      >
+                        {inner}
+                      </button>
+                    ) : (
+                      <div className="grid grid-cols-[2rem_1fr_4.5rem] gap-2 items-start px-3 py-2.5">
+                        {inner}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </section>
+
 
       {selected && (
         <div
