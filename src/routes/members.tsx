@@ -3,7 +3,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePermissions } from "@/hooks/use-permissions";
-import { Search, X } from "lucide-react";
+import { Search, X, FileDown } from "lucide-react";
+
 
 export const Route = createFileRoute("/members")({
   head: () => ({
