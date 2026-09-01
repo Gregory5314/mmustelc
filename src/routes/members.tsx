@@ -98,13 +98,29 @@ function Members() {
   }, [members, term, year]);
 
   const exportPdf = async () => {
+    if (!isOfficer) return;
     setExporting(true);
     try {
+      // Contacts come from the access-controlled admin view, one member at a time.
+      const contacts = new Map<string, { phone: string | null; email: string | null }>();
+      const batch = 8;
+      for (let i = 0; i < filtered.length; i += batch) {
+        const slice = filtered.slice(i, i + batch);
+        const results = await Promise.all(
+          slice.map((m) => supabase.rpc("get_member_admin_view", { _user_id: m.id })),
+        );
+        results.forEach(({ data }, idx) => {
+          const row = (data as Details[] | null)?.[0];
+          const member = slice[idx];
+          if (member) contacts.set(member.id, { phone: row?.phone ?? null, email: row?.email ?? null });
+        });
+      }
+
       const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
         import("jspdf"),
         import("jspdf-autotable"),
       ]);
-      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
       const scope =
         year === "all" ? "All years" : year === "none" ? "Year not set" : `Year ${year}`;
       doc.setFontSize(15);
@@ -113,12 +129,14 @@ function Members() {
       doc.text(`${scope} · ${filtered.length} member(s) · ${new Date().toLocaleDateString()}`, 40, 62);
       autoTable(doc, {
         startY: 78,
-        head: [["#", "Full name", "Course", "Year"]],
+        head: [["#", "Full name", "Course", "Year", "Phone", "Email"]],
         body: filtered.map((m, i) => [
           String(i + 1),
           m.full_name || "—",
           m.course || "—",
           m.year ? `Year ${m.year}` : "—",
+          contacts.get(m.id)?.phone || "—",
+          contacts.get(m.id)?.email || "—",
         ]),
         styles: { fontSize: 9, cellPadding: 5 },
         headStyles: { fillColor: [185, 28, 28], textColor: 255 },
