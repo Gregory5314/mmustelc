@@ -488,7 +488,11 @@ export type Database = {
       }
       meeting_reports: {
         Row: {
+          agenda: string | null
+          aob: string | null
+          attendees: string | null
           created_at: string
+          deliberations: string | null
           file_url: string | null
           id: string
           meeting_date: string
@@ -497,7 +501,11 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
+          agenda?: string | null
+          aob?: string | null
+          attendees?: string | null
           created_at?: string
+          deliberations?: string | null
           file_url?: string | null
           id?: string
           meeting_date: string
@@ -506,7 +514,11 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
+          agenda?: string | null
+          aob?: string | null
+          attendees?: string | null
           created_at?: string
+          deliberations?: string | null
           file_url?: string | null
           id?: string
           meeting_date?: string
