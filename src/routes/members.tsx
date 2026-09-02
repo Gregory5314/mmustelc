@@ -215,15 +215,17 @@ function Members() {
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={exportPdf}
-          disabled={exporting || filtered.length === 0}
-          className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground disabled:opacity-50"
-        >
-          <FileDown className="h-4 w-4" />
-          {exporting ? "Preparing PDF…" : `Export ${filtered.length} member(s) as PDF`}
-        </button>
+        {isOfficer && (
+          <button
+            type="button"
+            onClick={exportPdf}
+            disabled={exporting || filtered.length === 0}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground disabled:opacity-50"
+          >
+            <FileDown className="h-4 w-4" />
+            {exporting ? "Preparing PDF…" : `Export ${filtered.length} member(s) with contacts`}
+          </button>
+        )}
       </section>
 
       <section className="px-4 mt-3">
