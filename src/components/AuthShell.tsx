@@ -72,10 +72,10 @@ export function AuthShell({
         <>
           <div
             aria-hidden
-            className="fixed inset-0 z-0 bg-center bg-cover blur-[3px] scale-105"
+            className="fixed inset-0 z-0 bg-center bg-cover"
             style={{ backgroundImage: `url("${bg}")` }}
           />
-          <div aria-hidden className="fixed inset-0 z-0 bg-background/70 backdrop-blur-sm" />
+          <div aria-hidden className="fixed inset-0 z-0 bg-background/20" />
         </>
       )}
 
