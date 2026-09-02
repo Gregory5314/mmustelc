@@ -89,10 +89,10 @@ export function AuthShell({
             height={72}
             className="h-18 w-18 rounded-full bg-white p-1 object-contain shadow animate-pop-in"
           />
-          <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)] text-center">{title}</h1>
-          {subtitle && <p className="text-sm text-muted-foreground text-center">{subtitle}</p>}
+          <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)] text-center [text-shadow:0_1px_6px_rgba(0,0,0,0.45)]">{title}</h1>
+          {subtitle && <p className="text-sm text-foreground/90 text-center [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">{subtitle}</p>}
           {branding?.motto && (
-            <p className="mt-1 text-xs italic text-[var(--brand)] text-center">“{branding.motto}”</p>
+            <p className="mt-1 text-xs italic text-[var(--brand)] text-center [text-shadow:0_1px_4px_rgba(0,0,0,0.45)]">“{branding.motto}”</p>
           )}
         </div>
         {children}
