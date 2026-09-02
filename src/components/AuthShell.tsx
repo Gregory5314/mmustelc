@@ -63,19 +63,24 @@ export function AuthShell({
 
 
   return (
-    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
+    <div
+      className={`relative min-h-screen flex flex-col items-center justify-center px-5 py-10 ${
+        bg ? "" : "bg-background"
+      }`}
+    >
       {bg && (
         <>
           <div
             aria-hidden
-            className="fixed inset-0 -z-20 bg-center bg-cover blur-[3px] scale-105"
+            className="fixed inset-0 z-0 bg-center bg-cover blur-[3px] scale-105"
             style={{ backgroundImage: `url("${bg}")` }}
           />
-          <div aria-hidden className="fixed inset-0 -z-10 bg-background/70 backdrop-blur-sm" />
+          <div aria-hidden className="fixed inset-0 z-0 bg-background/70 backdrop-blur-sm" />
         </>
       )}
 
-      <div className="w-full max-w-sm relative">
+      <div className="w-full max-w-sm relative z-10">
+
         <div className="flex flex-col items-center mb-6">
           <img
             src={logo}
