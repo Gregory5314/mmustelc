@@ -137,10 +137,11 @@ function SignupPage() {
     }
     setInfo(
       isAlumni
-        ? "Alumni account created — check your email to confirm. The Alumni Manager will see you in the register."
-        : "Account created — check your email to confirm.",
+        ? "Alumni account created — the Alumni Manager will see you in the register."
+        : "Account created — signing you in…",
     );
-    navigate({ to: "/check-email", search: { type: "verify", email: data.email }, replace: true });
+    navigate({ to: "/", replace: true });
+
 
   };
 
