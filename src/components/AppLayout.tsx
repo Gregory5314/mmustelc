@@ -137,7 +137,20 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         { event: "*", schema: "public", table: "notifications", filter: `recipient_id=eq.${user.id}` },
         loadUnread)
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const subTopic = `subscriptions:${user.id}`;
+    supabase.getChannels()
+      .filter((c) => c.topic === `realtime:${subTopic}`)
+      .forEach((c) => { supabase.removeChannel(c); });
+    const subChannel = supabase.channel(subTopic, { config: { private: true } })
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "subscriptions", filter: `profile_id=eq.${user.id}` },
+        (payload) => {
+          const status = (payload.new as { status?: string } | null)?.status;
+          setSubscriptionStatus(status === "active" ? "active" : "inactive");
+        })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); supabase.removeChannel(subChannel); };
   }, [user]);
 
   const visibleAdminMenu = adminMenu.filter((m) => {
