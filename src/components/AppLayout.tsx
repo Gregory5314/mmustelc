@@ -12,6 +12,7 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { IdleTimeout } from "@/components/IdleTimeout";
 import { haptic } from "@/lib/haptics";
+import { toast } from "sonner";
 
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
