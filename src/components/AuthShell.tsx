@@ -91,11 +91,13 @@ export function AuthShell({
           />
           <h1 className="mt-3 text-2xl font-extrabold text-[var(--brand)] text-center [text-shadow:0_1px_6px_rgba(0,0,0,0.45)]">{title}</h1>
           {subtitle && <p className="text-sm text-foreground/90 text-center [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">{subtitle}</p>}
-          {branding?.motto && (
+        {branding?.motto && (
             <p className="mt-1 text-xs italic text-[var(--brand)] text-center [text-shadow:0_1px_4px_rgba(0,0,0,0.45)]">“{branding.motto}”</p>
           )}
         </div>
-        {children}
+        <div className="bg-background/35 backdrop-blur-xl border border-border/50 rounded-2xl p-5 shadow-lg">
+          {children}
+        </div>
       </div>
     </div>
   );
