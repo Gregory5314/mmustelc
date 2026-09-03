@@ -117,6 +117,9 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         if (data?.name) setChapterName(data.name);
       });
 
+    supabase.from("subscriptions").select("status").eq("profile_id", user.id).maybeSingle()
+      .then(({ data }) => setSubscriptionStatus(data?.status === "active" ? "active" : "inactive"));
+
 
     const loadUnread = () => {
       supabase.from("notifications").select("id", { count: "exact", head: true })
