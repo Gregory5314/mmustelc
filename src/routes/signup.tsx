@@ -171,7 +171,7 @@ function SignupPage() {
 
         <form
           onSubmit={onSubmit}
-          className="bg-card border border-border rounded-2xl p-5 shadow-sm space-y-4"
+          className="space-y-4"
         >
           <Field
             id="firstName"

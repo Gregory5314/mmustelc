@@ -46,7 +46,7 @@ function LoginPage() {
     <AuthShell title="Welcome back" subtitle="Sign in to your MMUST ELP account">
         <form
           onSubmit={onSubmit}
-          className="bg-card/95 border border-border rounded-2xl p-5 shadow-sm space-y-4"
+          className="space-y-4"
         >
 
           <div>
