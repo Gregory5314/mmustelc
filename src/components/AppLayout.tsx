@@ -188,25 +188,28 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
 
 
       <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
-        <div className="grid grid-cols-3 items-center gap-2">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
           <button onClick={() => { haptic("medium"); setMenuOpen(true); }} aria-label="Open menu"
-            className="justify-self-start p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90">
+            className="justify-self-start p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90 shrink-0">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <h2 className="text-center text-2xl font-extrabold gradient-text animate-pop-in">{title}</h2>
+          <h2 className="min-w-0 text-center text-2xl font-extrabold gradient-text animate-pop-in whitespace-nowrap">{title}</h2>
           <button
-            onClick={() => {
+            onClick={async () => {
               haptic("light");
-              if (subscriptionStatus === "active") {
+              const { data } = await supabase.from("subscriptions").select("status").eq("profile_id", user.id).maybeSingle();
+              const status = data?.status === "active" ? "active" : "inactive";
+              setSubscriptionStatus(status);
+              if (status === "active") {
                 toast.success("Your subscription status is active");
               } else {
                 toast.error("Your subscription status is inactive. Please pay to activate.");
               }
             }}
             aria-label={`Subscription status: ${subscriptionStatus}`}
-            className={`justify-self-end px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+            className={`justify-self-end shrink-0 px-2 py-1 rounded-lg text-[10px] leading-none font-bold transition-all active:scale-95 ${
               subscriptionStatus === "active"
-                ? "bg-green-500/20 text-green-600 shadow-[0_0_12px_rgba(34,197,94,0.55)] border border-green-500/40"
+                ? "bg-green-500/20 text-green-600 shadow-[0_0_10px_rgba(34,197,94,0.5)] border border-green-500/40"
                 : "bg-red-900/30 text-red-400 border border-red-500/30 opacity-80"
             }`}
           >
