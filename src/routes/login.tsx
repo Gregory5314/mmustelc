@@ -61,7 +61,7 @@ function LoginPage() {
               placeholder="you@example.com or 2018/050/14879"
               autoComplete="username"
               required
-              className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              className="mt-1 w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           <div>
@@ -78,7 +78,7 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+              className="mt-1 w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
             />
           </div>
           {error && <p className="text-sm text-destructive font-semibold">{error}</p>}

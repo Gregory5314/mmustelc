@@ -246,7 +246,7 @@ function SignupPage() {
                 value={form.year}
                 onChange={(e) => set("year", e.target.value)}
                 required
-                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+                className="mt-1 w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
               >
                 <option value="">Select year</option>
                 {[1, 2, 3, 4, 5, 6].map((y) => (
@@ -328,7 +328,7 @@ function Field({
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
-        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+        className="mt-1 w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
       />
     </div>
   );
