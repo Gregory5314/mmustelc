@@ -12,6 +12,7 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { IdleTimeout } from "@/components/IdleTimeout";
 import { haptic } from "@/lib/haptics";
+import { toast } from "sonner";
 
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
@@ -60,6 +61,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [chapterLogo, setChapterLogo] = useState<string | null>(null);
   const [chapterName, setChapterName] = useState<string>("MMUST ELP");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<"active" | "inactive">("inactive");
 
   // Pull-to-refresh
   const [pullY, setPullY] = useState(0);
@@ -114,6 +116,9 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         if (data?.logo_url) setChapterLogo(data.logo_url);
         if (data?.name) setChapterName(data.name);
       });
+
+    supabase.from("subscriptions").select("status").eq("profile_id", user.id).maybeSingle()
+      .then(({ data }) => setSubscriptionStatus(data?.status === "active" ? "active" : "inactive"));
 
 
     const loadUnread = () => {
@@ -183,12 +188,30 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
 
 
       <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-3 items-center gap-2">
           <button onClick={() => { haptic("medium"); setMenuOpen(true); }} aria-label="Open menu"
-            className="p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90">
+            className="justify-self-start p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <h2 className="flex-1 text-center text-2xl font-extrabold gradient-text -ml-6 animate-pop-in">{title}</h2>
+          <h2 className="text-center text-2xl font-extrabold gradient-text animate-pop-in">{title}</h2>
+          <button
+            onClick={() => {
+              haptic("light");
+              if (subscriptionStatus === "active") {
+                toast.success("Your subscription status is active");
+              } else {
+                toast.error("Your subscription status is inactive. Please pay to activate.");
+              }
+            }}
+            aria-label={`Subscription status: ${subscriptionStatus}`}
+            className={`justify-self-end px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+              subscriptionStatus === "active"
+                ? "bg-green-500/20 text-green-600 shadow-[0_0_12px_rgba(34,197,94,0.55)] border border-green-500/40"
+                : "bg-red-900/30 text-red-400 border border-red-500/30 opacity-80"
+            }`}
+          >
+            {subscriptionStatus === "active" ? "Active" : "Inactive"}
+          </button>
         </div>
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
