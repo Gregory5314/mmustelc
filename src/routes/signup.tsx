@@ -43,6 +43,14 @@ const baseSchema = z.object({
 
 const thisYear = new Date().getFullYear();
 
+export const SECURITY_QUESTIONS = [
+  { key: "favorite_food", label: "What's your favorite food?" },
+  { key: "childhood_nickname", label: "Childhood nickname" },
+  { key: "favorite_sports_team", label: "Favorite sports team" },
+  { key: "favorite_color", label: "Favorite color" },
+  { key: "fathers_first_name", label: "Father's first name" },
+] as const;
+
 function SignupPage() {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -57,6 +65,10 @@ function SignupPage() {
     year: "",
     graduationYear: "",
     password: "",
+    q1: SECURITY_QUESTIONS[0].key as string,
+    a1: "",
+    q2: SECURITY_QUESTIONS[1].key as string,
+    a2: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
