@@ -773,6 +773,7 @@ export type Database = {
       security_answers: {
         Row: {
           answer_hash: string
+          answer_norm: string | null
           created_at: string
           id: string
           question_key: string
@@ -780,6 +781,7 @@ export type Database = {
         }
         Insert: {
           answer_hash: string
+          answer_norm?: string | null
           created_at?: string
           id?: string
           question_key: string
@@ -787,6 +789,7 @@ export type Database = {
         }
         Update: {
           answer_hash?: string
+          answer_norm?: string | null
           created_at?: string
           id?: string
           question_key?: string
@@ -942,6 +945,12 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_security_questions_for_email: {
+        Args: { _email: string }
+        Returns: {
+          question_key: string
+        }[]
+      }
       has_permission: {
         Args: { _permission: string; _user_id: string }
         Returns: boolean
@@ -992,6 +1001,7 @@ export type Database = {
           scholar_code: string
         }[]
       }
+      normalize_security_answer: { Args: { _a: string }; Returns: string }
       notify_all_members: {
         Args: { _body: string; _link: string; _title: string; _type: string }
         Returns: undefined
@@ -1009,6 +1019,10 @@ export type Database = {
       save_security_answers: {
         Args: { _a1: string; _a2: string; _q1: string; _q2: string }
         Returns: undefined
+      }
+      verify_security_answers: {
+        Args: { _answers: Json; _email: string }
+        Returns: string
       }
     }
     Enums: {
