@@ -770,6 +770,30 @@ export type Database = {
         }
         Relationships: []
       }
+      security_answers: {
+        Row: {
+          answer_hash: string
+          created_at: string
+          id: string
+          question_key: string
+          user_id: string
+        }
+        Insert: {
+          answer_hash: string
+          created_at?: string
+          id?: string
+          question_key: string
+          user_id: string
+        }
+        Update: {
+          answer_hash?: string
+          created_at?: string
+          id?: string
+          question_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -929,6 +953,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_signup_identity_available: {
+        Args: { _email: string; _phone: string }
+        Returns: {
+          email_taken: boolean
+          phone_taken: boolean
+        }[]
+      }
       list_chapter_officials: {
         Args: never
         Returns: {
@@ -973,6 +1004,10 @@ export type Database = {
           _title: string
           _type: string
         }
+        Returns: undefined
+      }
+      save_security_answers: {
+        Args: { _a1: string; _a2: string; _q1: string; _q2: string }
         Returns: undefined
       }
     }
