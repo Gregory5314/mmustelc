@@ -109,7 +109,37 @@ function SignupPage() {
       }
     }
 
+    if (form.q1 === form.q2) {
+      setError("Pick two different security questions");
+      return;
+    }
+    if (form.a1.trim().length < 2 || form.a2.trim().length < 2) {
+      setError("Answer both security questions");
+      return;
+    }
+
     setSubmitting(true);
+
+    const { data: taken, error: checkError } = await supabase.rpc("is_signup_identity_available", {
+      _email: data.email,
+      _phone: data.phone,
+    });
+    if (!checkError) {
+      const row = (Array.isArray(taken) ? taken[0] : taken) as
+        | { email_taken: boolean; phone_taken: boolean }
+        | null;
+      if (row?.email_taken) {
+        setSubmitting(false);
+        setError("An account with this email address already exists.");
+        return;
+      }
+      if (row?.phone_taken) {
+        setSubmitting(false);
+        setError("An account with this mobile number already exists.");
+        return;
+      }
+    }
+
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -132,11 +162,13 @@ function SignupPage() {
         },
       },
     });
-    setSubmitting(false);
 
     if (error) {
+      setSubmitting(false);
       const msg = error.message.toLowerCase();
-      if (msg.includes("already") && msg.includes("registered")) {
+      if (msg.includes("mobile number already exists")) {
+        setError("An account with this mobile number already exists.");
+      } else if (msg.includes("already") && msg.includes("registered")) {
         setError("An account with this email address already exists.");
       } else if (msg.includes("email address already exists")) {
         setError("An account with this email address already exists.");
@@ -147,14 +179,21 @@ function SignupPage() {
       }
       return;
     }
+
+    await supabase.rpc("save_security_answers", {
+      _q1: form.q1,
+      _a1: form.a1,
+      _q2: form.q2,
+      _a2: form.a2,
+    });
+    setSubmitting(false);
+
     setInfo(
       isAlumni
         ? "Alumni account created — the Alumni Manager will see you in the register."
         : "Account created — signing you in…",
     );
     navigate({ to: "/", replace: true });
-
-
   };
 
   return (
