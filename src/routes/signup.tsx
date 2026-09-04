@@ -43,6 +43,14 @@ const baseSchema = z.object({
 
 const thisYear = new Date().getFullYear();
 
+export const SECURITY_QUESTIONS = [
+  { key: "favorite_food", label: "What's your favorite food?" },
+  { key: "childhood_nickname", label: "Childhood nickname" },
+  { key: "favorite_sports_team", label: "Favorite sports team" },
+  { key: "favorite_color", label: "Favorite color" },
+  { key: "fathers_first_name", label: "Father's first name" },
+] as const;
+
 function SignupPage() {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -57,6 +65,10 @@ function SignupPage() {
     year: "",
     graduationYear: "",
     password: "",
+    q1: SECURITY_QUESTIONS[0].key as string,
+    a1: "",
+    q2: SECURITY_QUESTIONS[1].key as string,
+    a2: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -97,7 +109,37 @@ function SignupPage() {
       }
     }
 
+    if (form.q1 === form.q2) {
+      setError("Pick two different security questions");
+      return;
+    }
+    if (form.a1.trim().length < 2 || form.a2.trim().length < 2) {
+      setError("Answer both security questions");
+      return;
+    }
+
     setSubmitting(true);
+
+    const { data: taken, error: checkError } = await supabase.rpc("is_signup_identity_available", {
+      _email: data.email,
+      _phone: data.phone,
+    });
+    if (!checkError) {
+      const row = (Array.isArray(taken) ? taken[0] : taken) as
+        | { email_taken: boolean; phone_taken: boolean }
+        | null;
+      if (row?.email_taken) {
+        setSubmitting(false);
+        setError("An account with this email address already exists.");
+        return;
+      }
+      if (row?.phone_taken) {
+        setSubmitting(false);
+        setError("An account with this mobile number already exists.");
+        return;
+      }
+    }
+
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -120,11 +162,13 @@ function SignupPage() {
         },
       },
     });
-    setSubmitting(false);
 
     if (error) {
+      setSubmitting(false);
       const msg = error.message.toLowerCase();
-      if (msg.includes("already") && msg.includes("registered")) {
+      if (msg.includes("mobile number already exists")) {
+        setError("An account with this mobile number already exists.");
+      } else if (msg.includes("already") && msg.includes("registered")) {
         setError("An account with this email address already exists.");
       } else if (msg.includes("email address already exists")) {
         setError("An account with this email address already exists.");
@@ -135,14 +179,21 @@ function SignupPage() {
       }
       return;
     }
+
+    await supabase.rpc("save_security_answers", {
+      _q1: form.q1,
+      _a1: form.a1,
+      _q2: form.q2,
+      _a2: form.a2,
+    });
+    setSubmitting(false);
+
     setInfo(
       isAlumni
         ? "Alumni account created — the Alumni Manager will see you in the register."
         : "Account created — signing you in…",
     );
     navigate({ to: "/", replace: true });
-
-
   };
 
   return (
@@ -269,6 +320,31 @@ function SignupPage() {
             autoComplete="new-password"
           />
 
+          <div className="rounded-xl border border-white/25 bg-background/20 p-3 space-y-3">
+            <p className="text-xs font-bold tracking-wider text-muted-foreground">
+              SECURITY QUESTIONS — PICK TWO
+            </p>
+            <QuestionPicker
+              idx={1}
+              question={form.q1}
+              answer={form.a1}
+              disabledKey={form.q2}
+              onQuestion={(v) => set("q1", v)}
+              onAnswer={(v) => set("a1", v)}
+            />
+            <QuestionPicker
+              idx={2}
+              question={form.q2}
+              answer={form.a2}
+              disabledKey={form.q1}
+              onQuestion={(v) => set("q2", v)}
+              onAnswer={(v) => set("a2", v)}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Answers are not case sensitive. Keep them somewhere safe — they help verify it's you.
+            </p>
+          </div>
+
           {error && <p className="text-sm text-destructive font-semibold">{error}</p>}
           {info && (
             <p className="text-sm text-[var(--brand)] font-semibold bg-accent/60 rounded-md p-2">
@@ -330,6 +406,50 @@ function Field({
         autoComplete={autoComplete}
         required={required}
         className="mt-1 w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+      />
+    </div>
+  );
+}
+
+function QuestionPicker({
+  idx,
+  question,
+  answer,
+  disabledKey,
+  onQuestion,
+  onAnswer,
+}: {
+  idx: number;
+  question: string;
+  answer: string;
+  disabledKey: string;
+  onQuestion: (v: string) => void;
+  onAnswer: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <select
+        aria-label={`Security question ${idx}`}
+        value={question}
+        onChange={(e) => onQuestion(e.target.value)}
+        required
+        className="w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+      >
+        {SECURITY_QUESTIONS.map((q) => (
+          <option key={q.key} value={q.key} disabled={q.key === disabledKey}>
+            {q.label}
+          </option>
+        ))}
+      </select>
+      <input
+        aria-label={`Answer ${idx}`}
+        type="text"
+        value={answer}
+        onChange={(e) => onAnswer(e.target.value)}
+        placeholder="Your answer"
+        autoComplete="off"
+        required
+        className="w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
       />
     </div>
   );
