@@ -320,6 +320,31 @@ function SignupPage() {
             autoComplete="new-password"
           />
 
+          <div className="rounded-xl border border-white/25 bg-background/20 p-3 space-y-3">
+            <p className="text-xs font-bold tracking-wider text-muted-foreground">
+              SECURITY QUESTIONS — PICK TWO
+            </p>
+            <QuestionPicker
+              idx={1}
+              question={form.q1}
+              answer={form.a1}
+              disabledKey={form.q2}
+              onQuestion={(v) => set("q1", v)}
+              onAnswer={(v) => set("a1", v)}
+            />
+            <QuestionPicker
+              idx={2}
+              question={form.q2}
+              answer={form.a2}
+              disabledKey={form.q1}
+              onQuestion={(v) => set("q2", v)}
+              onAnswer={(v) => set("a2", v)}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Answers are not case sensitive. Keep them somewhere safe — they help verify it's you.
+            </p>
+          </div>
+
           {error && <p className="text-sm text-destructive font-semibold">{error}</p>}
           {info && (
             <p className="text-sm text-[var(--brand)] font-semibold bg-accent/60 rounded-md p-2">
