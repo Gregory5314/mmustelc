@@ -410,3 +410,47 @@ function Field({
     </div>
   );
 }
+
+function QuestionPicker({
+  idx,
+  question,
+  answer,
+  disabledKey,
+  onQuestion,
+  onAnswer,
+}: {
+  idx: number;
+  question: string;
+  answer: string;
+  disabledKey: string;
+  onQuestion: (v: string) => void;
+  onAnswer: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <select
+        aria-label={`Security question ${idx}`}
+        value={question}
+        onChange={(e) => onQuestion(e.target.value)}
+        required
+        className="w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+      >
+        {SECURITY_QUESTIONS.map((q) => (
+          <option key={q.key} value={q.key} disabled={q.key === disabledKey}>
+            {q.label}
+          </option>
+        ))}
+      </select>
+      <input
+        aria-label={`Answer ${idx}`}
+        type="text"
+        value={answer}
+        onChange={(e) => onAnswer(e.target.value)}
+        placeholder="Your answer"
+        autoComplete="off"
+        required
+        className="w-full rounded-lg border border-input bg-background/70 backdrop-blur-sm px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:outline-none focus:ring-2 focus:ring-[var(--brand)]"
+      />
+    </div>
+  );
+}
