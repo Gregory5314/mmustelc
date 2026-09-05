@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/complaint")({
   head: () => ({
     meta: [
-      { title: "Report Complaint — MMUST ELP" },
+      { title: "Report Complaint/Problem — MMUST ELP" },
       { name: "description", content: "Submit a complaint or concern to chapter officials." },
     ],
   }),
@@ -37,7 +37,7 @@ function Complaint() {
   };
 
   return (
-    <AppLayout title="Report Complaint" subtitle="Your voice matters.">
+    <AppLayout title="Report Complaint/Problem" subtitle="Your voice matters.">
       <section className="px-4 mt-4">
         {submitted ? (
           <div className="bg-card border border-border rounded-2xl p-6 text-center">
