@@ -65,6 +65,8 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
   const [chapterLogo, setChapterLogo] = useState<string | null>(null);
   const [chapterName, setChapterName] = useState<string>("MMUST ELP");
   const [subscriptionStatus, setSubscriptionStatus] = useState<"active" | "inactive">("inactive");
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   // Pull-to-refresh
   const [pullY, setPullY] = useState(0);
