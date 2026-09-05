@@ -41,15 +41,10 @@ const baseSchema = z.object({
   password: z.string().min(8, "At least 8 characters").max(72),
 });
 
+import { SECURITY_QUESTIONS } from "@/lib/security-questions";
+
 const thisYear = new Date().getFullYear();
 
-export const SECURITY_QUESTIONS = [
-  { key: "favorite_food", label: "What's your favorite food?" },
-  { key: "childhood_nickname", label: "Childhood nickname" },
-  { key: "favorite_sports_team", label: "Favorite sports team" },
-  { key: "favorite_color", label: "Favorite color" },
-  { key: "fathers_first_name", label: "Father's first name" },
-] as const;
 
 function SignupPage() {
   const navigate = useNavigate();
