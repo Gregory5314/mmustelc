@@ -4,7 +4,7 @@ import {
   Menu, X, Home, User, CheckSquare, BookOpen, Users, Shield,
   AlertTriangle, Link2, Bell, MoreHorizontal, UserPlus, LogOut,
   Calendar, FileText, DollarSign, GraduationCap, Heart, Settings,
-  Quote, Award, Image as ImageIcon, RefreshCw,
+  Quote, Award, Image as ImageIcon, RefreshCw, CheckCircle2, XCircle,
 } from "lucide-react";
 import defaultLogo from "@/assets/elp-logo.png";
 import { useAuth } from "@/hooks/use-auth";
@@ -12,7 +12,10 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
 import { IdleTimeout } from "@/components/IdleTimeout";
 import { haptic } from "@/lib/haptics";
-import { toast } from "sonner";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 
 type MenuItem = { icon: any; label: string; to: string; perm?: string | string[] };
