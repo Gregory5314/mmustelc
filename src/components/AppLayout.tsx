@@ -215,14 +215,12 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           <button
             onClick={async () => {
               haptic("light");
+              setCheckingStatus(true);
+              setStatusDialogOpen(true);
               const { data } = await supabase.from("subscriptions").select("status").eq("profile_id", user.id).maybeSingle();
               const status = data?.status === "active" ? "active" : "inactive";
               setSubscriptionStatus(status);
-              if (status === "active") {
-                toast.success("Your subscription status is active");
-              } else {
-                toast.error("Your subscription status is inactive. Please pay to activate.");
-              }
+              setCheckingStatus(false);
             }}
             aria-label={`Subscription status: ${subscriptionStatus}`}
             className={`justify-self-end shrink-0 px-2 py-1 rounded-lg text-[10px] leading-none font-bold transition-all active:scale-95 ${
@@ -236,6 +234,33 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         </div>
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
+
+      <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader className="items-center text-center">
+            {subscriptionStatus === "active" ? (
+              <CheckCircle2 className="h-12 w-12 text-green-500 mb-2 animate-pop-in" />
+            ) : (
+              <XCircle className="h-12 w-12 text-red-500 mb-2 animate-pop-in" />
+            )}
+            <DialogTitle className="text-xl">
+              {checkingStatus ? "Checking subscription…" : subscriptionStatus === "active" ? "Active" : "Inactive"}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              {checkingStatus
+                ? "Please wait while we verify your current subscription status."
+                : subscriptionStatus === "active"
+                  ? "Congratulations! Your subscription status is active."
+                  : "Your subscription status is inactive, kindly pay the fee to activate it."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setStatusDialogOpen(false)} className="w-full">
+              {subscriptionStatus === "active" ? "Great" : "Okay"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
 
       <main key={pathname} className="route-transition">{children}</main>
