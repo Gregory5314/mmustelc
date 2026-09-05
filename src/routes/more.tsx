@@ -16,7 +16,7 @@ const items = [
   { icon: Users, label: "Members List", to: "/members" as const },
   { icon: Shield, label: "Chapter Officials", to: "/officials" as const },
   { icon: ImageIcon, label: "Photo Gallery", to: "/gallery" as const },
-  { icon: AlertTriangle, label: "Report Complaint", to: "/complaint" as const },
+  { icon: AlertTriangle, label: "Report Complaint/Problem", to: "/complaint" as const },
 ];
 
 function More() {

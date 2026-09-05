@@ -27,7 +27,7 @@ const memberMenu: MenuItem[] = [
   { icon: Users, label: "Members List", to: "/members" },
   { icon: Shield, label: "Chapter Officials", to: "/officials" },
   { icon: ImageIcon, label: "Photo Gallery", to: "/gallery" },
-  { icon: AlertTriangle, label: "Report Complaint", to: "/complaint" },
+  { icon: AlertTriangle, label: "Report Complaint/Problem", to: "/complaint" },
 ];
 
 const adminMenu: MenuItem[] = [
