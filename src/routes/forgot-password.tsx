@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { resetPasswordWithSecurityAnswers } from "@/lib/recovery.functions";
-import { SECURITY_QUESTIONS } from "./signup";
+import { SECURITY_QUESTIONS } from "@/lib/security-questions";
 import logo from "@/assets/elp-logo.png";
 
 export const Route = createFileRoute("/forgot-password")({
