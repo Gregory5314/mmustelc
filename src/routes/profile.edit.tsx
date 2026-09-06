@@ -51,6 +51,9 @@ function EditProfile() {
   const [pw, setPw] = useState({ next: "", confirm: "" });
   const [pwSaving, setPwSaving] = useState(false);
 
+  const [sq, setSq] = useState({ q1: "", a1: "", q2: "", a2: "" });
+  const [sqSaving, setSqSaving] = useState(false);
+
   const [emailOptIn, setEmailOptIn] = useState(false);
   const [isAdminLike, setIsAdminLike] = useState(false);
   const [savingOptIn, setSavingOptIn] = useState(false);
