@@ -6,7 +6,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
-import { ChevronLeft, Save, Camera, KeyRound, User as UserIcon, Lock } from "lucide-react";
+import { SECURITY_QUESTIONS } from "@/lib/security-questions";
+import { ChevronLeft, Save, Camera, KeyRound, User as UserIcon, Lock, ShieldQuestion } from "lucide-react";
 
 export const Route = createFileRoute("/profile/edit")({
   head: () => ({
@@ -50,6 +51,9 @@ function EditProfile() {
   const [pw, setPw] = useState({ next: "", confirm: "" });
   const [pwSaving, setPwSaving] = useState(false);
 
+  const [sq, setSq] = useState({ q1: "", a1: "", q2: "", a2: "" });
+  const [sqSaving, setSqSaving] = useState(false);
+
   const [emailOptIn, setEmailOptIn] = useState(false);
   const [isAdminLike, setIsAdminLike] = useState(false);
   const [savingOptIn, setSavingOptIn] = useState(false);
@@ -79,7 +83,27 @@ function EditProfile() {
       const roles = (data ?? []).map((r) => r.role);
       setIsAdminLike(roles.some((r) => r !== "member"));
     });
+    supabase.from("security_answers").select("question_key, created_at")
+      .eq("user_id", user.id).order("created_at").then(({ data }) => {
+        const keys = (data ?? []).map((r) => r.question_key);
+        if (keys.length) setSq((s) => ({ ...s, q1: keys[0] ?? "", q2: keys[1] ?? "" }));
+      });
   }, [user]);
+
+  const onSaveSecurityQuestions = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sq.q1 || !sq.q2) return toast.error("Pick two questions");
+    if (sq.q1 === sq.q2) return toast.error("Pick two different questions");
+    if (!sq.a1.trim() || !sq.a2.trim()) return toast.error("Both answers are required");
+    setSqSaving(true);
+    const { error } = await supabase.rpc("save_security_answers", {
+      _q1: sq.q1, _a1: sq.a1.trim(), _q2: sq.q2, _a2: sq.a2.trim(),
+    });
+    setSqSaving(false);
+    if (error) return toast.error(error.message);
+    setSq((s) => ({ ...s, a1: "", a2: "" }));
+    toast.success("Security questions updated");
+  };
 
   const toggleEmailOptIn = async (next: boolean) => {
     if (!user) return;
@@ -236,6 +260,44 @@ function EditProfile() {
           <button type="submit" disabled={pwSaving}
             className="w-full bg-[var(--brand)] text-brand-foreground font-bold py-2.5 rounded-lg shadow disabled:opacity-60">
             {pwSaving ? "Updating…" : "Update Password"}
+          </button>
+        </form>
+      </section>
+
+      <section className="px-4 mt-2 mb-4">
+        <form onSubmit={onSaveSecurityQuestions} className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
+          <h3 className="text-base font-extrabold text-[var(--brand)] flex items-center gap-2">
+            <ShieldQuestion className="h-5 w-5" /> Security Questions
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Used to recover your account if you forget your password. Answers are not case sensitive.
+          </p>
+          {([["q1", "a1", "QUESTION 1"], ["q2", "a2", "QUESTION 2"]] as const).map(([qk, ak, label]) => (
+            <div key={qk} className="space-y-2">
+              <label className="text-[10px] font-semibold tracking-wider text-muted-foreground">{label}</label>
+              <select
+                value={sq[qk]}
+                onChange={(e) => setSq({ ...sq, [qk]: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-semibold"
+              >
+                <option value="">Select a question…</option>
+                {SECURITY_QUESTIONS.map((q) => (
+                  <option key={q.key} value={q.key}>{q.label}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={sq[ak]}
+                maxLength={120}
+                placeholder="Your answer"
+                onChange={(e) => setSq({ ...sq, [ak]: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+          ))}
+          <button type="submit" disabled={sqSaving}
+            className="w-full bg-[var(--brand)] text-brand-foreground font-bold py-2.5 rounded-lg shadow disabled:opacity-60">
+            {sqSaving ? "Saving…" : "Save Security Questions"}
           </button>
         </form>
       </section>
