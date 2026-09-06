@@ -6,7 +6,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
-import { ChevronLeft, Save, Camera, KeyRound, User as UserIcon, Lock } from "lucide-react";
+import { SECURITY_QUESTIONS } from "@/lib/security-questions";
+import { ChevronLeft, Save, Camera, KeyRound, User as UserIcon, Lock, ShieldQuestion } from "lucide-react";
 
 export const Route = createFileRoute("/profile/edit")({
   head: () => ({
