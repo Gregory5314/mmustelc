@@ -264,6 +264,44 @@ function EditProfile() {
         </form>
       </section>
 
+      <section className="px-4 mt-2 mb-4">
+        <form onSubmit={onSaveSecurityQuestions} className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm">
+          <h3 className="text-base font-extrabold text-[var(--brand)] flex items-center gap-2">
+            <ShieldQuestion className="h-5 w-5" /> Security Questions
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Used to recover your account if you forget your password. Answers are not case sensitive.
+          </p>
+          {([["q1", "a1", "QUESTION 1"], ["q2", "a2", "QUESTION 2"]] as const).map(([qk, ak, label]) => (
+            <div key={qk} className="space-y-2">
+              <label className="text-[10px] font-semibold tracking-wider text-muted-foreground">{label}</label>
+              <select
+                value={sq[qk]}
+                onChange={(e) => setSq({ ...sq, [qk]: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-semibold"
+              >
+                <option value="">Select a question…</option>
+                {SECURITY_QUESTIONS.map((q) => (
+                  <option key={q.key} value={q.key}>{q.label}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={sq[ak]}
+                maxLength={120}
+                placeholder="Your answer"
+                onChange={(e) => setSq({ ...sq, [ak]: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+          ))}
+          <button type="submit" disabled={sqSaving}
+            className="w-full bg-[var(--brand)] text-brand-foreground font-bold py-2.5 rounded-lg shadow disabled:opacity-60">
+            {sqSaving ? "Saving…" : "Save Security Questions"}
+          </button>
+        </form>
+      </section>
+
       {isAdminLike && (
         <section className="px-4 mt-2 mb-6">
           <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
