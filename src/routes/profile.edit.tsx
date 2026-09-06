@@ -83,7 +83,27 @@ function EditProfile() {
       const roles = (data ?? []).map((r) => r.role);
       setIsAdminLike(roles.some((r) => r !== "member"));
     });
+    supabase.from("security_answers").select("question_key, created_at")
+      .eq("user_id", user.id).order("created_at").then(({ data }) => {
+        const keys = (data ?? []).map((r) => r.question_key);
+        if (keys.length) setSq((s) => ({ ...s, q1: keys[0] ?? "", q2: keys[1] ?? "" }));
+      });
   }, [user]);
+
+  const onSaveSecurityQuestions = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sq.q1 || !sq.q2) return toast.error("Pick two questions");
+    if (sq.q1 === sq.q2) return toast.error("Pick two different questions");
+    if (!sq.a1.trim() || !sq.a2.trim()) return toast.error("Both answers are required");
+    setSqSaving(true);
+    const { error } = await supabase.rpc("save_security_answers", {
+      _q1: sq.q1, _a1: sq.a1.trim(), _q2: sq.q2, _a2: sq.a2.trim(),
+    });
+    setSqSaving(false);
+    if (error) return toast.error(error.message);
+    setSq((s) => ({ ...s, a1: "", a2: "" }));
+    toast.success("Security questions updated");
+  };
 
   const toggleEmailOptIn = async (next: boolean) => {
     if (!user) return;
