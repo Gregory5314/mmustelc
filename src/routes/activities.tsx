@@ -110,7 +110,7 @@ function Activities() {
   const upcoming = items.filter((e) => new Date(e.starts_at).getTime() >= now);
   const past = items.filter((e) => new Date(e.starts_at).getTime() < now);
 
-  const sectionProps = { counts, mine, busy, toggleRsvp };
+  const sectionProps = { counts, mine, busy, toggleRsvp: (id: string) => setConfirm(items.find((e) => e.id === id) ?? null) };
 
   return (
     <AppLayout title="Chapter Activities" subtitle="Workshops, mentorship, and outreach.">
@@ -124,9 +124,31 @@ function Activities() {
           {past.length > 0 && <Section title="Past" items={past} canRsvp={false} {...sectionProps} />}
         </>
       )}
+
+      <AlertDialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirm && mine.has(confirm.id) ? "Cancel your attendance?" : "Confirm your attendance"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm && mine.has(confirm.id)
+                ? `You will be removed from the attendee list for "${confirm.title}".`
+                : `Are you attending "${confirm?.title}"?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Not now</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (confirm) toggleRsvp(confirm.id); setConfirm(null); }}>
+              {confirm && mine.has(confirm.id) ? "Yes, cancel" : "Yes, I'm attending"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
+
 
 function Section({
   title, items, counts, mine, busy, toggleRsvp, canRsvp,
