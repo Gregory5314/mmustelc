@@ -2,14 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PermissionGate } from "@/components/AppLayout";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, CheckCircle2, Trash2, ImagePlus, Pencil } from "lucide-react";
+import { Calendar, CheckCircle2, Trash2, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/admin/events")({
   head: () => ({ meta: [{ title: "Manage Events — MMUST ELP" }] }),
@@ -22,22 +17,11 @@ type Ev = {
   photo_url: string | null;
 };
 
-const toLocalInput = (iso: string) => {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
 function Page() {
   const [items, setItems] = useState<Ev[]>([]);
   const [form, setForm] = useState({ title: "", description: "", starts_at: "", location: "" });
   const [busy, setBusy] = useState(false);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
-  const [confirmSuccess, setConfirmSuccess] = useState<Ev | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<Ev | null>(null);
-  const [editing, setEditing] = useState<Ev | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", starts_at: "", location: "" });
-  const [savingEdit, setSavingEdit] = useState(false);
 
   const refresh = () =>
     supabase.from("events").select("*").order("starts_at", { ascending: false })
@@ -55,33 +39,6 @@ function Page() {
     if (error) return toast.error(error.message);
     toast.success("Event created. Members notified.");
     setForm({ title: "", description: "", starts_at: "", location: "" });
-    refresh();
-  };
-
-  const openEdit = (ev: Ev) => {
-    setEditing(ev);
-    setEditForm({
-      title: ev.title,
-      description: ev.description ?? "",
-      starts_at: toLocalInput(ev.starts_at),
-      location: ev.location ?? "",
-    });
-  };
-
-  const saveEdit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!editing) return;
-    setSavingEdit(true);
-    const { error } = await supabase.from("events").update({
-      title: editForm.title,
-      description: editForm.description || null,
-      starts_at: new Date(editForm.starts_at).toISOString(),
-      location: editForm.location || null,
-    }).eq("id", editing.id);
-    setSavingEdit(false);
-    if (error) return toast.error(error.message);
-    toast.success("Event updated.");
-    setEditing(null);
     refresh();
   };
 
@@ -138,76 +95,20 @@ function Page() {
             key={ev.id}
             ev={ev}
             uploading={uploadingId === ev.id}
-            onEdit={() => openEdit(ev)}
-            onMarkSuccessful={() => setConfirmSuccess(ev)}
-            onRemove={() => setConfirmDelete(ev)}
+            onMarkSuccessful={() => markSuccessful(ev.id)}
+            onRemove={() => remove(ev.id)}
             onUploadPhoto={(file) => uploadPhoto(ev.id, file)}
           />
         ))}
       </section>
-
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-[var(--brand)]">Edit Event</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={saveEdit} className="space-y-3">
-            <Input label="Title *" value={editForm.title} onChange={(v) => setEditForm({ ...editForm, title: v })} required />
-            <Input label="Date & Time *" type="datetime-local" value={editForm.starts_at} onChange={(v) => setEditForm({ ...editForm, starts_at: v })} required />
-            <Input label="Location" value={editForm.location} onChange={(v) => setEditForm({ ...editForm, location: v })} />
-            <TextArea label="Description" value={editForm.description} onChange={(v) => setEditForm({ ...editForm, description: v })} />
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setEditing(null)} className="flex-1 border border-border font-bold py-2.5 rounded-lg">Cancel</button>
-              <button type="submit" disabled={savingEdit} className="flex-1 bg-[var(--brand)] text-brand-foreground font-bold py-2.5 rounded-lg disabled:opacity-60">
-                {savingEdit ? "Saving…" : "Save changes"}
-              </button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={!!confirmSuccess} onOpenChange={(o) => !o && setConfirmSuccess(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Mark as successful?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Confirm that "{confirmSuccess?.title}" took place successfully. It will be shown as completed to members.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (confirmSuccess) markSuccessful(confirmSuccess.id); setConfirmSuccess(null); }}>
-              Yes, mark successful
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove this event?</AlertDialogTitle>
-            <AlertDialogDescription>
-              "{confirmDelete?.title}" will be deleted permanently. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (confirmDelete) remove(confirmDelete.id); setConfirmDelete(null); }}>
-              Delete event
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
 
 function EventRow({
-  ev, uploading, onEdit, onMarkSuccessful, onRemove, onUploadPhoto,
+  ev, uploading, onMarkSuccessful, onRemove, onUploadPhoto,
 }: {
   ev: Ev; uploading: boolean;
-  onEdit: () => void;
   onMarkSuccessful: () => void; onRemove: () => void;
   onUploadPhoto: (file: File) => void;
 }) {
@@ -253,15 +154,12 @@ function EventRow({
           }`}>{ev.status}</span>
         </div>
         <div className="flex flex-col gap-1">
-          <button onClick={onEdit} className="p-2 text-[var(--brand)] hover:bg-[var(--brand)]/10 rounded" title="Edit event">
-            <Pencil className="h-4 w-4" />
-          </button>
           {ev.status !== "successful" && (
             <button onClick={onMarkSuccessful} className="p-2 text-green-600 hover:bg-green-50 rounded" title="Mark successful">
               <CheckCircle2 className="h-4 w-4" />
             </button>
           )}
-          <button onClick={onRemove} className="p-2 text-destructive hover:bg-destructive/10 rounded" title="Remove event">
+          <button onClick={onRemove} className="p-2 text-destructive hover:bg-destructive/10 rounded">
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
