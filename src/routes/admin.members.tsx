@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppLayout } from "@/components/AppLayout";
 import { useEffect, useState, type FormEvent } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { createMember, deleteMember, assignRole, removeRole, getMemberProfile, updateMemberProfile } from "@/lib/admin.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+import { scholarCodeToEmail } from "@/lib/scholar";
 import { UserPlus, Trash2, BarChart3, ArrowUpDown, Shield, X, Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -23,12 +23,42 @@ function AdminMembers() {
   const { roles } = usePermissions();
   const isPresident = roles.includes("president");
   const navigate = useNavigate();
-  const create = useServerFn(createMember);
-  const remove = useServerFn(deleteMember);
-  const assign = useServerFn(assignRole);
-  const unassign = useServerFn(removeRole);
-  const loadProfile = useServerFn(getMemberProfile);
-  const saveProfile = useServerFn(updateMemberProfile);
+  // All admin actions call permission-gated database functions directly, so
+  // they work on any hosting (no server runtime required).
+  const createMemberAccount = async (input: {
+    scholarCode: string; password: string; fullName: string; email?: string;
+    phone?: string; course?: string; mentoringSchool?: string; role: string; year?: number;
+  }) => {
+    // Secondary client with no session persistence, so the admin stays signed in.
+    const anon = createClient(
+      import.meta.env.VITE_SUPABASE_URL as string,
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: signed, error: signErr } = await anon.auth.signUp({
+      email: scholarCodeToEmail(input.scholarCode),
+      password: input.password,
+      options: {
+        data: {
+          scholar_code: input.scholarCode,
+          full_name: input.fullName,
+          contact_email: input.email || null,
+          phone: input.phone || null,
+          course: input.course || null,
+          mentoring_school: input.mentoringSchool || null,
+        },
+      },
+    });
+    if (signErr) throw new Error(signErr.message);
+    const newId = signed.user?.id;
+    if (!newId) throw new Error("Could not create member.");
+    const { error: finErr } = await supabase.rpc("admin_finalize_member", {
+      _user_id: newId,
+      _role: input.role as never,
+      _year: input.year ?? null,
+    });
+    if (finErr) throw new Error(finErr.message);
+  };
   const [editOpen, setEditOpen] = useState<Row | null>(null);
   const [editForm, setEditForm] = useState<null | {
     scholarCode: string; fullName: string; email: string; phone: string;
