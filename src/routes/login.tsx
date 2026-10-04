@@ -32,7 +32,11 @@ function LoginPage() {
     setError(null);
     setSubmitting(true);
     const raw = identifier.trim();
-    const email = raw.includes("@") ? raw.toLowerCase() : scholarCodeToEmail(raw);
+    // Resolve via the database so sign-in still works after an admin changes
+    // a member's scholar code; fall back to the deterministic mapping.
+    let email = raw.includes("@") ? raw.toLowerCase() : scholarCodeToEmail(raw);
+    const { data: resolved } = await supabase.rpc("resolve_login_email", { _identifier: raw });
+    if (resolved) email = resolved;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (error) {
