@@ -134,7 +134,7 @@ function Activities() {
           {past.length > 0 && <Section title="Past" items={past} rsvpCounts={rsvpCounts} />}
         </>
       )}
-    </main>
+    </AppLayout>
   );
 }
 
