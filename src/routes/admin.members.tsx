@@ -55,7 +55,7 @@ function AdminMembers() {
     const { error: finErr } = await supabase.rpc("admin_finalize_member", {
       _user_id: newId,
       _role: input.role as never,
-      _year: input.year ?? null,
+      _year: input.year,
     });
     if (finErr) throw new Error(finErr.message);
   };
@@ -456,11 +456,11 @@ function AdminMembers() {
                       _user_id: editOpen.id,
                       _scholar_code: editForm.scholarCode,
                       _full_name: editForm.fullName,
-                      _email: editForm.email || null,
-                      _phone: editForm.phone || null,
-                      _course: editForm.course || null,
-                      _mentoring_school: editForm.mentoringSchool || null,
-                      _year: editForm.year ? Number(editForm.year) : null,
+                      _email: editForm.email || undefined,
+                      _phone: editForm.phone || undefined,
+                      _course: editForm.course || undefined,
+                      _mentoring_school: editForm.mentoringSchool || undefined,
+                      _year: editForm.year ? Number(editForm.year) : undefined,
                     });
                     if (sErr) throw new Error(sErr.message);
                     toast.success("Profile updated");
