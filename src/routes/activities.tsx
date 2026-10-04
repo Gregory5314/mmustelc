@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarDays, CheckCircle2, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/activities")({
@@ -107,12 +108,7 @@ function Activities() {
   const past = items.filter((e) => new Date(e.starts_at).getTime() < now);
 
   return (
-    <main className="min-h-screen bg-background">
-      <header className="px-4 pt-6 pb-4 bg-[var(--brand)] text-brand-foreground">
-        <h1 className="text-2xl font-extrabold">Chapter Activities</h1>
-        <p className="text-sm opacity-90">Workshops, mentorship, and outreach.</p>
-      </header>
-
+    <AppLayout title="Chapter Activities" subtitle="Workshops, mentorship, and outreach.">
       {message && (
         <p role="status" className="mx-4 mt-4 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground">
           {message}
