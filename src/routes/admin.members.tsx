@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppLayout } from "@/components/AppLayout";
 import { useEffect, useState, type FormEvent } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { createMember, deleteMember, assignRole, removeRole, getMemberProfile, updateMemberProfile } from "@/lib/admin.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+import { scholarCodeToEmail } from "@/lib/scholar";
 import { UserPlus, Trash2, BarChart3, ArrowUpDown, Shield, X, Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -23,12 +23,42 @@ function AdminMembers() {
   const { roles } = usePermissions();
   const isPresident = roles.includes("president");
   const navigate = useNavigate();
-  const create = useServerFn(createMember);
-  const remove = useServerFn(deleteMember);
-  const assign = useServerFn(assignRole);
-  const unassign = useServerFn(removeRole);
-  const loadProfile = useServerFn(getMemberProfile);
-  const saveProfile = useServerFn(updateMemberProfile);
+  // All admin actions call permission-gated database functions directly, so
+  // they work on any hosting (no server runtime required).
+  const createMemberAccount = async (input: {
+    scholarCode: string; password: string; fullName: string; email?: string;
+    phone?: string; course?: string; mentoringSchool?: string; role: string; year?: number;
+  }) => {
+    // Secondary client with no session persistence, so the admin stays signed in.
+    const anon = createClient(
+      import.meta.env.VITE_SUPABASE_URL as string,
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: signed, error: signErr } = await anon.auth.signUp({
+      email: scholarCodeToEmail(input.scholarCode),
+      password: input.password,
+      options: {
+        data: {
+          scholar_code: input.scholarCode,
+          full_name: input.fullName,
+          contact_email: input.email || null,
+          phone: input.phone || null,
+          course: input.course || null,
+          mentoring_school: input.mentoringSchool || null,
+        },
+      },
+    });
+    if (signErr) throw new Error(signErr.message);
+    const newId = signed.user?.id;
+    if (!newId) throw new Error("Could not create member.");
+    const { error: finErr } = await supabase.rpc("admin_finalize_member", {
+      _user_id: newId,
+      _role: input.role as never,
+      _year: input.year,
+    });
+    if (finErr) throw new Error(finErr.message);
+  };
   const [editOpen, setEditOpen] = useState<Row | null>(null);
   const [editForm, setEditForm] = useState<null | {
     scholarCode: string; fullName: string; email: string; phone: string;
@@ -111,7 +141,7 @@ function AdminMembers() {
         mentoringSchool: form.mentoringSchool, role: form.role,
       };
       if (form.year) payload.year = Number(form.year);
-      await create({ data: payload });
+      await createMemberAccount(payload as Parameters<typeof createMemberAccount>[0]);
       setSuccess(`Member ${form.fullName} created as ${roleLabel(form.role)}. Share their scholar code & password to sign in.`);
       setForm({ scholarCode: "", password: "", fullName: "", email: "", phone: "", course: "", mentoringSchool: "", role: "member", year: "" });
       refresh();
@@ -126,7 +156,8 @@ function AdminMembers() {
     if (!confirmDel) return;
     setDeleting(true);
     try {
-      await remove({ data: { userId: confirmDel.id } });
+      const { error: delErr } = await supabase.rpc("admin_delete_member", { _user_id: confirmDel.id });
+      if (delErr) throw new Error(delErr.message);
       toast.success(`${confirmDel.full_name || "Member"} deleted.`);
       setConfirmDel(null);
       refresh();
@@ -251,7 +282,8 @@ function AdminMembers() {
             const doAssign = async (role: string) => {
               setRoleBusy(r.id);
               try {
-                await assign({ data: { userId: r.id, role } });
+                const { error: aErr } = await supabase.rpc("admin_assign_role", { _user_id: r.id, _role: role as never });
+                if (aErr) throw new Error(aErr.message);
                 setRolesMap((m) => ({ ...m, [r.id]: [...(m[r.id] ?? []), role] }));
                 toast.success(`Assigned ${roleLabel(role)} to ${r.full_name}`);
               } catch (err) {
@@ -263,7 +295,8 @@ function AdminMembers() {
             const doRemoveRole = async (role: string) => {
               setRoleBusy(r.id);
               try {
-                await unassign({ data: { userId: r.id, role } });
+                const { error: uErr } = await supabase.rpc("admin_remove_role", { _user_id: r.id, _role: role as never });
+                if (uErr) throw new Error(uErr.message);
                 setRolesMap((m) => ({ ...m, [r.id]: (m[r.id] ?? []).filter((x) => x !== role) }));
                 toast.success(`Removed ${roleLabel(role)} from ${r.full_name}`);
               } catch (err) {
@@ -289,7 +322,9 @@ function AdminMembers() {
                           setEditForm(null);
                           setEditLoading(true);
                           try {
-                            const p = await loadProfile({ data: { userId: r.id } });
+                            const { data: p, error: pErr } = await supabase.rpc("get_member_admin_view", { _user_id: r.id }).maybeSingle();
+                            if (pErr) throw new Error(pErr.message);
+                            if (!p) throw new Error("Member not found");
                             setEditForm({
                               scholarCode: p.scholar_code ?? "",
                               fullName: p.full_name ?? "",
@@ -417,16 +452,17 @@ function AdminMembers() {
                   if (!editForm || !editOpen) return;
                   setEditBusy(true);
                   try {
-                    await saveProfile({ data: {
-                      userId: editOpen.id,
-                      scholarCode: editForm.scholarCode,
-                      fullName: editForm.fullName,
-                      email: editForm.email,
-                      phone: editForm.phone,
-                      course: editForm.course,
-                      mentoringSchool: editForm.mentoringSchool,
-                      year: editForm.year ? Number(editForm.year) : null,
-                    } });
+                    const { error: sErr } = await supabase.rpc("admin_update_member_profile", {
+                      _user_id: editOpen.id,
+                      _scholar_code: editForm.scholarCode,
+                      _full_name: editForm.fullName,
+                      _email: editForm.email || undefined,
+                      _phone: editForm.phone || undefined,
+                      _course: editForm.course || undefined,
+                      _mentoring_school: editForm.mentoringSchool || undefined,
+                      _year: editForm.year ? Number(editForm.year) : undefined,
+                    });
+                    if (sErr) throw new Error(sErr.message);
                     toast.success("Profile updated");
                     setEditOpen(null); setEditForm(null);
                     refresh();

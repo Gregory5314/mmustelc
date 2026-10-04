@@ -887,6 +887,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_assign_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      admin_delete_member: { Args: { _user_id: string }; Returns: undefined }
+      admin_finalize_member: {
+        Args: {
+          _role?: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+          _year?: number
+        }
+        Returns: undefined
+      }
+      admin_remove_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      admin_update_member_profile: {
+        Args: {
+          _course?: string
+          _email?: string
+          _full_name: string
+          _mentoring_school?: string
+          _phone?: string
+          _scholar_code: string
+          _user_id: string
+          _year?: number
+        }
+        Returns: undefined
+      }
       expire_pinned_items: { Args: never; Returns: undefined }
       get_chapter_admin: {
         Args: never
@@ -1045,6 +1081,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      resolve_login_email: { Args: { _identifier: string }; Returns: string }
       save_security_answers: {
         Args: { _a1: string; _a2: string; _q1: string; _q2: string }
         Returns: undefined
