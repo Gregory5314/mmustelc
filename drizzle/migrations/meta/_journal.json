@@ -8,6 +8,20 @@
       "when": 1791092812461,
       "tag": "0000_admin_rpcs_for_static_hosting",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791203591876,
+      "tag": "0001_avatar_rpc_alumni_not_officials",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791203617057,
+      "tag": "0002_alumni_not_officer_member_view",
+      "breakpoints": true
     }
   ]
 }

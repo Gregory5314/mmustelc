@@ -47,7 +47,7 @@ function initialsOf(name: string) {
 
 function Members() {
   const { roles } = usePermissions();
-  const isOfficer = roles.some((r) => r !== "member");
+  const isOfficer = roles.some((r) => r !== "member" && r !== "alumni");
 
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
