@@ -1086,6 +1086,7 @@ export type Database = {
         Args: { _a1: string; _a2: string; _q1: string; _q2: string }
         Returns: undefined
       }
+      set_my_avatar: { Args: { _url: string }; Returns: undefined }
       verify_security_answers: {
         Args: { _answers: Json; _email: string }
         Returns: string
