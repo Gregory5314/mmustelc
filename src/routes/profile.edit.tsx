@@ -146,12 +146,12 @@ function EditProfile() {
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
     const path = `${user.id}/avatar-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, {
-      cacheControl: "3600", upsert: true, contentType: file.type,
+      cacheControl: "3600", contentType: file.type || "image/jpeg",
     });
     if (upErr) { setUploading(false); return toast.error(upErr.message); }
     const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
     const url = pub.publicUrl;
-    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    const { error: updErr } = await supabase.rpc("set_my_avatar", { _url: url });
     setUploading(false);
     if (updErr) return toast.error(updErr.message);
     setAvatarUrl(url);
