@@ -129,12 +129,13 @@ function QuestionsFlow() {
     }
     setBusy(true);
     try {
-      const res = await resetPasswordWithSecurityAnswers({
-        data: { email: email.trim().toLowerCase(), answers, password },
+      const { data: ok, error: rpcErr } = await supabase.rpc("reset_password_with_security_answers", {
+        _email: email.trim().toLowerCase(), _answers: answers, _password: password,
       });
       setBusy(false);
-      if (!res.ok) {
-        setError(res.message);
+      if (rpcErr) { setError(rpcErr.message); return; }
+      if (!ok) {
+        setError("Those answers don't match our records.");
         return;
       }
       setDone(true);
