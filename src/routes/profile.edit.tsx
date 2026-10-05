@@ -81,7 +81,7 @@ function EditProfile() {
     // Show the email toggle only if the user has at least one role other than plain "member"
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       const roles = (data ?? []).map((r) => r.role);
-      setIsAdminLike(roles.some((r) => r !== "member"));
+      setIsAdminLike(roles.some((r) => r !== "member" && r !== "alumni"));
     });
     supabase.from("security_answers").select("question_key, created_at")
       .eq("user_id", user.id).order("created_at").then(({ data }) => {
