@@ -1081,6 +1081,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      reset_password_with_security_answers: {
+        Args: { _answers: Json; _email: string; _password: string }
+        Returns: boolean
+      }
       resolve_login_email: { Args: { _identifier: string }; Returns: string }
       save_security_answers: {
         Args: { _a1: string; _a2: string; _q1: string; _q2: string }

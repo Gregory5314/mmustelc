@@ -22,6 +22,13 @@
       "when": 1791203617057,
       "tag": "0002_alumni_not_officer_member_view",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791203813163,
+      "tag": "0003_reset_password_security_answers_rpc",
+      "breakpoints": true
     }
   ]
 }
