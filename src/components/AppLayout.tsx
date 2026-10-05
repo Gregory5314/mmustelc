@@ -5,6 +5,7 @@ import {
   AlertTriangle, Link2, Bell, MoreHorizontal, UserPlus, LogOut,
   Calendar, FileText, DollarSign, GraduationCap, Heart, Settings,
   Quote, Award, Image as ImageIcon, RefreshCw, CheckCircle2, XCircle,
+  Store, Landmark, Vote,
 } from "lucide-react";
 import defaultLogo from "@/assets/elp-logo.png";
 import { useAuth } from "@/hooks/use-auth";
@@ -67,6 +68,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
   const [subscriptionStatus, setSubscriptionStatus] = useState<"active" | "inactive">("inactive");
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
+  const [disabledFeature, setDisabledFeature] = useState<string | null>(null);
 
   // Pull-to-refresh
   const [pullY, setPullY] = useState(0);
@@ -262,6 +264,19 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
         </DialogContent>
       </Dialog>
 
+      <Dialog open={!!disabledFeature} onOpenChange={(o) => !o && setDisabledFeature(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader className="items-center text-center">
+            <XCircle className="h-12 w-12 text-muted-foreground mb-2 animate-pop-in" />
+            <DialogTitle className="text-xl">{disabledFeature}</DialogTitle>
+            <DialogDescription className="text-base">This function is currently disabled by admin.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setDisabledFeature(null)} className="w-full">Okay</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <main key={pathname} className="route-transition">{children}</main>
 
@@ -275,6 +290,18 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
                   className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-white/10 text-left">
                   <Icon className="h-5 w-5" />
                   <span className="font-bold text-sm">{label}</span>
+                </button>
+              ))}
+              {[
+                { icon: Store, label: "Marketplace" },
+                { icon: Landmark, label: "MMUST ELP Sacco" },
+                { icon: Vote, label: "MMUST ELP Elections" },
+              ].map(({ icon: Icon, label }) => (
+                <button key={label} onClick={() => { haptic("light"); setDisabledFeature(label); }}
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-white/10 text-left opacity-60">
+                  <Icon className="h-5 w-5" />
+                  <span className="font-bold text-sm flex-1">{label}</span>
+                  <span className="text-[9px] font-bold tracking-wider uppercase opacity-80">Disabled</span>
                 </button>
               ))}
               {visibleAdminMenu.length > 0 && (
