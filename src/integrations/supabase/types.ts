@@ -718,6 +718,8 @@ export type Database = {
           photo_url: string | null
           quote_text: string
           scholar_name: string
+          status: string
+          submitted_by: string | null
           updated_at: string
         }
         Insert: {
@@ -728,6 +730,8 @@ export type Database = {
           photo_url?: string | null
           quote_text: string
           scholar_name: string
+          status?: string
+          submitted_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -738,6 +742,8 @@ export type Database = {
           photo_url?: string | null
           quote_text?: string
           scholar_name?: string
+          status?: string
+          submitted_by?: string | null
           updated_at?: string
         }
         Relationships: []

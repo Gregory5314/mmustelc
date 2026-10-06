@@ -122,6 +122,7 @@ function Dashboard() {
         .from("quotes")
         .select("scholar_name,quote_text,photo_url")
         .eq("is_active", true)
+        .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle()

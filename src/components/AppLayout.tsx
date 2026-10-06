@@ -31,6 +31,7 @@ const memberMenu: MenuItem[] = [
   { icon: Users, label: "Members List", to: "/members" },
   { icon: Shield, label: "Chapter Officials", to: "/officials" },
   { icon: ImageIcon, label: "Photo Gallery", to: "/gallery" },
+  { icon: Quote, label: "Submit Quote of the Week", to: "/quote-submit" },
   { icon: AlertTriangle, label: "Report Complaint/Problem", to: "/complaint" },
 ];
 
