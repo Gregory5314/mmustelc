@@ -29,6 +29,13 @@
       "when": 1791203813163,
       "tag": "0003_reset_password_security_answers_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791298693191,
+      "tag": "0004_quote_submissions",
+      "breakpoints": true
     }
   ]
 }
