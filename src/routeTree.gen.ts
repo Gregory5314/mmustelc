@@ -25,6 +25,7 @@ import { Route as MoreRouteImport } from './routes/more'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OfficialsRouteImport } from './routes/officials'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as QuoteSubmitRouteImport } from './routes/quote-submit'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AdminAlumniRouteImport } from './routes/admin.alumni'
@@ -120,6 +121,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuoteSubmitRoute = QuoteSubmitRouteImport.update({
+  id: '/quote-submit',
+  path: '/quote-submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/officials': typeof OfficialsRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/quote-submit': typeof QuoteSubmitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin/alumni': typeof AdminAlumniRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/officials': typeof OfficialsRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/quote-submit': typeof QuoteSubmitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin/alumni': typeof AdminAlumniRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/officials': typeof OfficialsRoute
   '/profile': typeof ProfileRouteWithChildren
+  '/quote-submit': typeof QuoteSubmitRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin/alumni': typeof AdminAlumniRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/officials'
     | '/profile'
+    | '/quote-submit'
     | '/reset-password'
     | '/signup'
     | '/admin/alumni'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/officials'
     | '/profile'
+    | '/quote-submit'
     | '/reset-password'
     | '/signup'
     | '/admin/alumni'
@@ -371,6 +382,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/officials'
     | '/profile'
+    | '/quote-submit'
     | '/reset-password'
     | '/signup'
     | '/admin/alumni'
@@ -404,6 +416,7 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   OfficialsRoute: typeof OfficialsRoute
   ProfileRoute: typeof ProfileRouteWithChildren
+  QuoteSubmitRoute: typeof QuoteSubmitRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   AdminAlumniRoute: typeof AdminAlumniRoute
@@ -531,6 +544,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote-submit': {
+      id: '/quote-submit'
+      path: '/quote-submit'
+      fullPath: '/quote-submit'
+      preLoaderRoute: typeof QuoteSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -662,6 +682,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   OfficialsRoute: OfficialsRoute,
   ProfileRoute: ProfileRouteWithChildren,
+  QuoteSubmitRoute: QuoteSubmitRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   AdminAlumniRoute: AdminAlumniRoute,
