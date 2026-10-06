@@ -298,10 +298,9 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
                 { icon: Vote, label: "MMUST ELP Elections" },
               ].map(({ icon: Icon, label }) => (
                 <button key={label} onClick={() => { haptic("light"); setDisabledFeature(label); }}
-                  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-white/10 text-left opacity-60">
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-white/10 text-left">
                   <Icon className="h-5 w-5" />
-                  <span className="font-bold text-sm flex-1">{label}</span>
-                  <span className="text-[9px] font-bold tracking-wider uppercase opacity-80">Disabled</span>
+                  <span className="font-bold text-sm">{label}</span>
                 </button>
               ))}
               {visibleAdminMenu.length > 0 && (
