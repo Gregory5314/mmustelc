@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,6 +23,10 @@ export const Route = createFileRoute("/gallery")({
     meta: [
       { title: "Chapter Photo Gallery — MMUST ELP" },
       { name: "description", content: "Chapter photo gallery — share, react, and relive chapter moments together." },
+      { property: "og:title", content: "Chapter Photo Gallery — MMUST ELP" },
+      { property: "og:description", content: "Share and relive MMUST ELP chapter moments in the photo gallery." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: GalleryPage,
@@ -617,89 +622,80 @@ function Lightbox({
   const [pulse, setPulse] = useState(false);
   const multi = album.photos.length > 1;
 
-  return (
-    <div className="fixed inset-0 z-[60] bg-black/95 flex flex-col">
-      <div className="flex items-center justify-between px-3 py-2 text-white gap-2">
+  return createPortal(
+    <div role="dialog" aria-modal="true" aria-label={album.title} className="dark fixed inset-0 z-[60] h-dvh bg-background text-foreground overflow-hidden">
+      <div className="absolute inset-x-0 top-0 z-20 flex flex-wrap items-center justify-between px-3 py-2 bg-background/80 backdrop-blur-md gap-2">
         <div className="min-w-0">
           <p className="text-sm font-bold truncate">{album.title}</p>
           <p className="text-[11px] opacity-70">{index + 1} / {album.photos.length}</p>
         </div>
-        <div className="flex items-center gap-1">
-          <button
+        <div className="flex flex-wrap items-center gap-1">
+          <Button variant="ghost" size="sm"
             onClick={() => { setPulse(true); setTimeout(() => setPulse(false), 350); onReact(); }}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10"
+            className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-accent"
           >
-            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-red-500 text-red-500" : ""}`} />
+            <Heart className={`h-4 w-4 transition-transform duration-300 ease-out ${pulse ? "scale-150 rotate-12" : "scale-100"} ${album.reacted ? "fill-destructive text-destructive" : ""}`} />
             <span className="text-xs font-semibold">{album.reactionCount}</span>
-          </button>
+          </Button>
 
-          <button onClick={() => setShowComments((s) => !s)} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-white/10">
+          <Button variant="ghost" size="sm" aria-label="Toggle comments" aria-expanded={showComments} onClick={() => setShowComments((s) => !s)} className="flex items-center gap-1 px-2 py-1.5 rounded-md hover:bg-accent">
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-semibold">{comments.length}</span>
-          </button>
-          <button onClick={() => current && onDownloadOne(current)} className="p-2 rounded-md hover:bg-white/10" aria-label="Save">
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => current && onDownloadOne(current)} className="p-2 rounded-md hover:bg-accent" aria-label="Save">
             <Download className="h-4 w-4" />
-          </button>
+          </Button>
           {multi && (
-            <button onClick={onDownloadAll} disabled={zipping} className="text-[11px] font-semibold px-2 py-1.5 rounded-md hover:bg-white/10 disabled:opacity-50">
+            <Button variant="ghost" size="sm" onClick={onDownloadAll} disabled={zipping} className="text-[11px] font-semibold px-2 py-1.5 rounded-md hover:bg-accent disabled:opacity-50">
               {zipping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save all"}
-            </button>
+            </Button>
           )}
           {canDelete && current && (
-            <button onClick={() => onDeletePhoto(current)} className="p-2 rounded-md hover:bg-red-500/20 text-red-300" aria-label="Delete photo">
+            <Button variant="ghost" size="sm" onClick={() => onDeletePhoto(current)} className="p-2 rounded-md hover:bg-destructive/20 text-destructive" aria-label="Delete photo">
               <Trash2 className="h-4 w-4" />
-            </button>
+            </Button>
           )}
           {canDelete && multi && (
-            <button onClick={onDeleteAlbum} className="text-[11px] font-semibold px-2 py-1.5 rounded-md hover:bg-red-500/20 text-red-300">
+            <Button variant="ghost" size="sm" onClick={onDeleteAlbum} className="text-[11px] font-semibold px-2 py-1.5 rounded-md hover:bg-destructive/20 text-destructive">
               Delete album
-            </button>
+            </Button>
           )}
-          <button onClick={onClose} className="p-2 rounded-md hover:bg-white/10" aria-label="Close">
+          <Button variant="ghost" size="sm" onClick={onClose} className="p-2 rounded-md hover:bg-accent" aria-label="Close">
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex">
+      <div className="absolute inset-0 flex">
         <div className="flex-1 min-w-0 relative">
           <div ref={emblaRef} className="h-full overflow-hidden">
             <div className="flex h-full">
               {album.photos.map((p) => (
-                <div key={p.id} className="min-w-0 shrink-0 grow-0 basis-full h-full flex items-center justify-center p-3">
-                  <img src={p.public_url} alt={album.title} className="max-h-full max-w-full object-contain rounded-md shadow-2xl" />
+                <div key={p.id} className="min-w-0 shrink-0 grow-0 basis-full h-full flex items-center justify-center">
+                  <img src={p.public_url} alt={album.title} className="h-full w-full object-contain" />
                 </div>
               ))}
             </div>
           </div>
           {multi && (
             <>
-              <button onClick={() => embla?.scrollPrev()}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2">
+              <Button variant="ghost" size="sm" aria-label="Previous photo" onClick={() => embla?.scrollPrev()}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-accent text-foreground rounded-full p-2">
                 <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button onClick={() => embla?.scrollNext()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2">
+              </Button>
+              <Button variant="ghost" size="sm" aria-label="Next photo" onClick={() => embla?.scrollNext()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-accent text-foreground rounded-full p-2">
                 <ChevronRight className="h-5 w-5" />
-              </button>
+              </Button>
             </>
           )}
         </div>
 
-        {showComments && (
-          <aside className="w-full max-w-sm bg-neutral-900 text-white border-l border-white/10 hidden sm:flex sm:flex-col">
-            <CommentsPanel
-              comments={comments} commentText={commentText} setCommentText={setCommentText}
-              submitComment={submitComment} commentBusy={commentBusy}
-              currentUserId={currentUserId} isAdmin={isAdmin} onDeleteComment={onDeleteComment}
-            />
-          </aside>
-        )}
       </div>
 
-      {/* Mobile comments drawer */}
+      {/* Comments stay at the bottom on every screen */}
       {showComments && (
-        <div className="sm:hidden bg-neutral-900 text-white border-t border-white/10 max-h-[45vh] flex flex-col">
+        <div aria-label="Photo comments" className="absolute inset-x-0 bottom-0 z-20 bg-background/90 backdrop-blur-md border-t border-border max-h-[25dvh] flex flex-col pb-[env(safe-area-inset-bottom)]">
           <CommentsPanel
             comments={comments} commentText={commentText} setCommentText={setCommentText}
             submitComment={submitComment} commentBusy={commentBusy}
@@ -707,7 +703,8 @@ function Lightbox({
           />
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -726,35 +723,35 @@ function CommentsPanel({
 }) {
   return (
     <>
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
         {comments.length === 0 ? (
-          <p className="text-xs text-white/50 text-center py-6">Be the first to comment.</p>
+          <p className="text-xs text-muted-foreground text-center py-6">Be the first to comment.</p>
         ) : comments.map((c) => (
           <div key={c.id} className="flex items-start gap-2">
-            <div className="h-7 w-7 rounded-full bg-[var(--brand)] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
+            <div className="h-7 w-7 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shrink-0">
               {(c.author ?? "M").slice(0, 1).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-white/60">
-                <span className="font-semibold text-white/90">{c.author}</span> · {new Date(c.created_at).toLocaleString()}
+              <p className="text-[11px] text-muted-foreground">
+                <span className="font-semibold text-foreground">{c.author}</span> · {new Date(c.created_at).toLocaleString()}
               </p>
               <p className="text-sm break-words">{c.body}</p>
             </div>
             {(currentUserId === c.user_id || isAdmin) && (
-              <button onClick={() => onDeleteComment(c.id)} className="p-1 text-white/40 hover:text-red-400" aria-label="Delete comment">
+              <button onClick={() => onDeleteComment(c.id)} className="p-1 text-muted-foreground hover:text-destructive" aria-label="Delete comment">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
         ))}
       </div>
-      <div className="p-2 border-t border-white/10 flex items-end gap-2">
+      <div className="p-2 shrink-0 border-t border-border flex items-end gap-2">
         <Textarea
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           placeholder="Add a comment…"
           rows={1}
-          className="bg-white/10 border-white/10 text-white placeholder:text-white/40 resize-none min-h-[38px]"
+          className="bg-muted border-border text-foreground placeholder:text-muted-foreground resize-none min-h-[38px]"
         />
         <Button onClick={submitComment} disabled={commentBusy || !commentText.trim()} size="icon"
           className="bg-[var(--brand)] hover:bg-[var(--brand-deep)]">
