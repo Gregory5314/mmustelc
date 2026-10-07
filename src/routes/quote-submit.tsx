@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Quote, Clock, CheckCircle2 } from "lucide-react";
+import { Quote, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -108,6 +108,8 @@ function Page() {
               </div>
               {q.status === "published" ? (
                 <span className="text-[10px] font-bold uppercase flex items-center gap-1 text-primary"><CheckCircle2 className="h-3.5 w-3.5" />Published</span>
+              ) : q.status === "rejected" ? (
+                <span className="text-[10px] font-bold uppercase flex items-center gap-1 text-muted-foreground"><XCircle className="h-3.5 w-3.5" />Not approved</span>
               ) : (
                 <span className="text-[10px] font-bold uppercase flex items-center gap-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />In review</span>
               )}
