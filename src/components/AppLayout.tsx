@@ -110,7 +110,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
 
   useEffect(() => {
     if (!isLoading && !user) navigate({ to: "/login", replace: true });
-  }, [user, isLoading, navigate]);
+  }, [user?.id, isLoading, navigate]);
 
 
 
