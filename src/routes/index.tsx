@@ -69,7 +69,7 @@ function Dashboard() {
           setFirstName(name.trim().split(/\s+/)[0]);
         });
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     const load = () => {

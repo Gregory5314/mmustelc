@@ -163,7 +163,7 @@ function GalleryPage() {
     setAlbums(albums);
     setOrphans(orphans);
     setLoading(false);
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => { load(); }, [load]);
 

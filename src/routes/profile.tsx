@@ -46,7 +46,7 @@ function ProfilePage() {
       .eq("profile_id", user.id)
       .order("event_date", { ascending: false })
       .then(({ data }) => setEvents((data ?? []) as EventRow[]));
-  }, [user]);
+  }, [user?.id]);
 
   if (location.pathname !== "/profile") return <Outlet />;
 
