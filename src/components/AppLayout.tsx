@@ -159,7 +159,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
       .subscribe();
 
     return () => { supabase.removeChannel(channel); supabase.removeChannel(subChannel); };
-  }, [user]);
+  }, [user?.id]);
 
   const visibleAdminMenu = adminMenu.filter((m) => {
     if (!m.perm) return true;

@@ -88,7 +88,7 @@ function EditProfile() {
         const keys = (data ?? []).map((r) => r.question_key);
         if (keys.length) setSq((s) => ({ ...s, q1: keys[0] ?? "", q2: keys[1] ?? "" }));
       });
-  }, [user]);
+  }, [user?.id]);
 
   const onSaveSecurityQuestions = async (e: React.FormEvent) => {
     e.preventDefault();
