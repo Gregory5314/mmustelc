@@ -192,6 +192,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           {refreshing ? "Refreshing…" : pullY >= THRESHOLD ? "Release to refresh" : "Pull to refresh"}
         </div>
       )}
+      <div className="sticky top-0 z-30">
       <header className="gradient-brand gradient-animate text-brand-foreground px-4 pt-3 pb-4 rounded-b-2xl shadow-md animate-page-in">
         <Link to="/" className="flex items-center gap-3 -m-1 p-1 rounded-lg hover:bg-white/5 active:bg-white/10 transition-colors" aria-label="Go to dashboard">
           <img src={chapterLogo ?? defaultLogo} alt={`${chapterName} crest`} width={48} height={48}
