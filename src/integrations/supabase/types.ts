@@ -94,6 +94,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string | null
+          label: string
+          position: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          label: string
+          position?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          label?: string
+          position?: number
+          url?: string
+        }
+        Relationships: []
+      }
       chapter_profile: {
         Row: {
           about: string | null

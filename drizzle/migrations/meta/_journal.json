@@ -36,6 +36,13 @@
       "when": 1791298693191,
       "tag": "0004_quote_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791446831395,
+      "tag": "0005_chapter_links",
+      "breakpoints": true
     }
   ]
 }
