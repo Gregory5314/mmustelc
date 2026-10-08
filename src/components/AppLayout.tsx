@@ -209,7 +209,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
       </header>
 
 
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
+      <div className="px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
           <button onClick={() => { haptic("medium"); setMenuOpen(true); }} aria-label="Open menu"
             className="justify-self-start p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90 shrink-0">
@@ -237,6 +237,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           </button>
         </div>
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
       </div>
 
       <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
