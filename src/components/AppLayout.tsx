@@ -192,6 +192,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           {refreshing ? "Refreshing…" : pullY >= THRESHOLD ? "Release to refresh" : "Pull to refresh"}
         </div>
       )}
+      <div className="sticky top-0 z-30">
       <header className="gradient-brand gradient-animate text-brand-foreground px-4 pt-3 pb-4 rounded-b-2xl shadow-md animate-page-in">
         <Link to="/" className="flex items-center gap-3 -m-1 p-1 rounded-lg hover:bg-white/5 active:bg-white/10 transition-colors" aria-label="Go to dashboard">
           <img src={chapterLogo ?? defaultLogo} alt={`${chapterName} crest`} width={48} height={48}
@@ -208,7 +209,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
       </header>
 
 
-      <div className="sticky top-0 z-30 px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
+      <div className="px-4 pt-4 pb-2 bg-background/85 backdrop-blur-md">
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
           <button onClick={() => { haptic("medium"); setMenuOpen(true); }} aria-label="Open menu"
             className="justify-self-start p-1.5 -ml-1.5 rounded-md hover:bg-accent active:scale-90 shrink-0">
@@ -236,6 +237,7 @@ export function AppLayout({ title, subtitle, children }: { title: string; subtit
           </button>
         </div>
         {subtitle && <p className="text-center text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
       </div>
 
       <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
